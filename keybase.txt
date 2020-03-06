@@ -1,0 +1,62 @@
+==================================================================
+https://keybase.io/sksat
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://sksat.net
+  * I am sksat (https://keybase.io/sksat) on keybase.
+  * I have a public key with fingerprint A5F9 5E92 A7EF B190 A818  9609 A450 0EC5 DD16 4E44
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "012039bd0f5618bd53d69c65b065d7ac1b004251c552f820fd59a0eaf930a937e0430a",
+      "fingerprint": "a5f95e92a7efb190a8189609a4500ec5dd164e44",
+      "host": "keybase.io",
+      "key_id": "a4500ec5dd164e44",
+      "kid": "0116e6c360e4141b182f63cd5df458dd29da3ac0f348ba45061c4cbf37a076bd78170a",
+      "uid": "02e4b8e8efd77e426c394a43e1126d19",
+      "username": "sksat"
+    },
+    "service": {
+      "hostname": "sksat.net",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 1
+  },
+  "ctime": 1583505600,
+  "expire_in": 157680000,
+  "prev": "0b2955338a745f37880df53fa91dd5ce47a242a54cc59274a75bb6955ab3836c",
+  "seqno": 51,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+
+owFtUjtrFUEY3WjEGCIKQjrFDKhNCPN+XANaBQU7K0W8mcc3yRrdvdndJIYYCNqk
+USI2ElBsbC1sgpBCEAuJCCKo+A/SCKKloLPRgIXVzJw553DOx7d2cG82MHxp/4uV
+U1e+xb6tbZdddZOfl5ArwyLqLKEZ2DngeoC66c7kAXUQJhQz4wKOQhLtgmBBGi+F
+w1IEZT1xGHMqiBeCRk1xDMJYDDYahq1hCjBPFzSKYl5MQdWr8qJJtlZEI8BQqyA6
+YrDVRBuJjeUCY/AiBCI5cJ6E02XdKlI4Z2sYy8uEpUd3J95/+Lu5iQTpmcTACSeO
+aBol80GEyIUOgZpgmfU4Mq5d6yKJ595FpixW0gWlidrJPffHjgJ3GjTEoBRwmpwN
+t5wBIVQGYlpiDVVhb0Bi1zO1bdDyKErQfO6hnWpb49/vsQKapOpVZVP68nqCp5um
+V3daWbPYa3kL4Lp/HbouL0KaYFLMQ1XnZYE6JDF9k7eWRGgmsJAYjyK42csr6OYt
+QyipMW7RXgXzbQ9HjRCMaau4uJjaao1DFCxaQ0IQHriylFMruPfCUMWtEs7JpLGO
+aSY9akvNFiXqCJKC2qm2Tz5V2GauArQ8uDrXnw0PZEeHR/oPnfs48vPxwPHx7NXd
+3a3bt6dduWzwwOFd5MvXvuzD+IOtoYX11R9vj2Fz5OXm+tnvD7c3rg01G+9PzE58
+ep79uuVh9V6G7p98cyfcfj05cfrMhbVnT84PP6KXVzafvhv6DQ==
+=7PmD
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/sksat
+
+==================================================================
