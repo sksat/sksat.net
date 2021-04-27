@@ -1,2 +1,2 @@
 #!/bin/sh
-curl https://raw.githubusercontent.com/sk2sat/dotfiles/master/autoinstall.sh | bash
+curl https://raw.githubusercontent.com/sksat/dotfiles/master/autoinstall.sh | bash
