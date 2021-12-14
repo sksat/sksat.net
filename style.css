@@ -1,4 +1,5 @@
 @font-face {
+  font-display: swap;
   font-family: 'Koruri';
   src: url('//cdn.plusminus.io/font/webkoruri/20140628/WebKoruri.eot');
   src: url('//cdn.plusminus.io/font/webkoruri/20140628/WebKoruri.eot?#iefix') format('embedded-opentype');
