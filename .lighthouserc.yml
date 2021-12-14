@@ -1,0 +1,17 @@
+ci:
+  collect:
+    # collect options here
+    #staticDistDir: "./hoge"
+    url: https://sksat.net
+
+  assert:
+    # assert options here
+
+  upload:
+    target: "temporary-public-storage"
+
+  server:
+    # server options here
+
+  wizard:
+    # wizard options here
