@@ -1,0 +1,75 @@
+OpenPGP Key Transition Statement for sksat <sksat@sksat.net>
+
+I have created a new OpenPGP key and will be transitioning away from my old key.
+The old key has not been compromised and will continue to be valid for some time,
+but I prefer all future correspondence to be encrypted to the new key,
+and will be making signatures with the new key going forward.
+I'm afraid to inform you that my OpenPGP key has been updated.
+
+The old key, which I'm transitioning away from, is:
+```
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mDMEXmI2FhYJKwYBBAHaRw8BAQdAR1GPALzAc2jiNPyH0azFNQje2kal48suEguc
+m/JCJVm0F3Nrc2F0IDxza3NhdEBza3NhdC5uZXQ+iJAEExYKADgWIQSl+V6Sp++x
+kKgYlgmkUA7F3RZORAUCXmI2FgIbAQULCQgHAwUVCgkICwUWAgMBAAIeAQIXgAAK
+CRCkUA7F3RZORB9AAP9R85Sw/AznqugINipZzn9KSoCx2HzzL08h+KR1pREmWgEA
+jj8fPOs6wkION9G3Czh/vnigkn6r7iwub4Mzy5O8+Q+4MwRgRsGQFgkrBgEEAdpH
+DwEBB0BxaJMc5FigcuEDF9Bqizy/cgUCy7ANwr6e39Lm0beyqIj1BBgWCgAmFiEE
+pflekqfvsZCoGJYJpFAOxd0WTkQFAmBGwZACGwIFCQHhM4AAgQkQpFAOxd0WTkR2
+IAQZFgoAHRYhBF3GlitQS2Ru/MByThvND+8tvR27BQJgRsGQAAoJEBvND+8tvR27
+7hoA/A0eEq9DjrPX2uWA4BLLD0V6dbv/V/vAKWb9+4TrR7TTAP95US+Z6E5/zHvm
+lVzHMyD7vxyMXdAgwxRXWxrIpawEAP0rAP9FxkGNvuyI7S38eCLW8PlSVNEW0VZ4
+X+9dy19fXYdbHQD/SH0rTkTdD/ILA2HIHoLEFZh2YbhtISprqb8f4pAqtgW4OARg
+RsHXEgorBgEEAZdVAQUBAQdAV6rmZF3yF82ViVyAqTCA2pIF+Z4pDsHqfRKvUo6O
+ZG4DAQgHiH4EGBYKACYWIQSl+V6Sp++xkKgYlgmkUA7F3RZORAUCYEbB1wIbDAUJ
+AeEzgAAKCRCkUA7F3RZORL6DAP9ESfFObMjn/IbE4fK3fqpZM6tuuMdQxmAs2427
+pV/IHgEAo+EoBSvXfkN/WOaT6iW446jxOP3/u6hDRi4ATf1X6Qa4MwRgRsIDFgkr
+BgEEAdpHDwEBB0Dq+uc0fMzxV8pPvnAR2aRllwTFviqZLYURwn/XsIkEL4h+BBgW
+CgAmFiEEpflekqfvsZCoGJYJpFAOxd0WTkQFAmBGwgMCGyAFCQHhM4AACgkQpFAO
+xd0WTkS5jgEArSqe7Pqdz4A+ALrBx62bUabBbvpkD4JzO2c2dwlMnMEA/3nGJLuZ
+v5IopdiSoxATv0rrt224gIJEUzJyUCzXelcHuDMEYEbPkhYJKwYBBAHaRw8BAQdA
+oShwVKbWZhKx62/Kbq+MkyRSWdboTxrr5UBnTnZzyv6I9QQYFgoAJhYhBKX5XpKn
+77GQqBiWCaRQDsXdFk5EBQJgRs+SAhsCBQkAdqcAAIEJEKRQDsXdFk5EdiAEGRYK
+AB0WIQSIWiPYeEWBafCN9qhQwXUn2shKWQUCYEbPkgAKCRBQwXUn2shKWfK+AQCW
+N9jo4BeoLrVHVykutSXduyNjcWMpVUiK7+ZBBe9qPgD+LeiTH9QnQLhTtwXO9xHx
+9vCHT61EICmnHB6mW8czgQ9zmQEAngOmJfFdT3JMirlaWSBDQ3AyR2ADDjW3SrcJ
+tVtcb2QA/29tFDyIBGrqL2MOght5XtZSKpW/lgOvtLfndLQb6dID
+=agr8
+-----END PGP PUBLIC KEY BLOCK-----
+```
+
+The new key, to which I'm transitioning, is:
+```
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mDMEYjrC6BYJKwYBBAHaRw8BAQdAQ+Sx3O/gfZgCDDjQjiANeykwAjDYnuDfGSZQ
+wdzMFSW0F3Nrc2F0IDxza3NhdEBza3NhdC5uZXQ+iJAEExYKADgWIQST43/S6//C
+WUuqQErim+DpUrrAGwUCYjrC6AIbAQULCQgHAwUVCgkICwUWAgMBAAIeAQIXgAAK
+CRDim+DpUrrAGyAvAQDytt1aaaoFPxv0ogipT7TDO/+6X9dSTcxMf6fXjtVfvwEA
+xA/U3QYpnG29xf2xqvHe4gc7zqiHTj3eY/NrEdkqAwG4MwRiPEZCFgkrBgEEAdpH
+DwEBB0A7Pw/PRsfb1rgk7S/vEZYSv4b1n86pOHnAjaxwOmtJ1Yj1BBgWCgAmFiEE
+k+N/0uv/wllLqkBK4pvg6VK6wBsFAmI8RkICGwIFCQAnjQAAgQkQ4pvg6VK6wBt2
+IAQZFgoAHRYhBJMklUWTNNErcuiSkVr7wtXiCYTpBQJiPEZCAAoJEFr7wtXiCYTp
+4ikA/Rt0jh10v8EDRvRcNwEDO+dSk0lqgV+3JRCTNY6zADWTAQDndC/F58WdOqrG
+KaMm4RSYQd6ZUVU8icBIFXLr/t0JBhYnAQDFXVkaLNEBzKa1UgZl1BOqev9GlX2t
+Z8nuHNOyTnp2ZQEA63OxntcentfT6stzfELOtIANj7aRpB1Nsd3VRnw4HwS4MwRi
+PEaAFgkrBgEEAdpHDwEBB0AyeF0CljsO4v4M5MJmISfianvf9B+Y6Ja2bybkBQmn
+h4h+BBgWCgAmFiEEk+N/0uv/wllLqkBK4pvg6VK6wBsFAmI8RoACGyAFCQAnjQAA
+CgkQ4pvg6VK6wBsJkwEAthIHxS2nPPO6ten+X/fIP22k23QSD+ZaQTogOWoHrWoB
+AKzupnBcR49cHOpVb5rRiUI8d5PegrXJE88WEKJ8UeAIuDgEYjxGqhIKKwYBBAGX
+VQEFAQEHQHrEZPrQ/BoBgL1i6ARUAsFJqU1kxNAqGrMq0pwEcOxmAwEIB4h+BBgW
+CgAmFiEEk+N/0uv/wllLqkBK4pvg6VK6wBsFAmI8RqoCGwwFCQAnjQAACgkQ4pvg
+6VK6wBu/TQEAtrcXGmUtskZ+Ejbx26txUy3TLVrfUr8rIRxGta33tG0A/2Poewcs
+Qu2BffKm0Tr3Qdf73jXr0NItbN+RSbdeJyAM
+=QYKT
+-----END PGP PUBLIC KEY BLOCK-----
+```
+
+The key may be downloaded from: https://sksat.net/pgp.txt
+
+P.S.
+I started living on my own.
+Details will be published later: https://github.com/sksat-install-battle/sksat-install-battle.
+
+/sksat
