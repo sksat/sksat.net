@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>セキュリティ・キャンプ2025 全国大会 探査機自作ゼミ 応募課題</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@font-face {
+font-family: octicons-link;
+src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+.octicon {
+display: inline-block;
+fill: currentColor;
+vertical-align: text-bottom;
+}
+.anchor {
+float: left;
+line-height: 1;
+margin-left: -20px;
+padding-right: 4px;
+}
+.anchor:focus {
+outline: none;
+}
+h1 .octicon-link,
+h2 .octicon-link,
+h3 .octicon-link,
+h4 .octicon-link,
+h5 .octicon-link,
+h6 .octicon-link {
+color: #1b1f23;
+vertical-align: middle;
+visibility: hidden;
+}
+h1:hover .anchor,
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor,
+h5:hover .anchor,
+h6:hover .anchor {
+text-decoration: none;
+}
+h1:hover .anchor .octicon-link,
+h2:hover .anchor .octicon-link,
+h3:hover .anchor .octicon-link,
+h4:hover .anchor .octicon-link,
+h5:hover .anchor .octicon-link,
+h6:hover .anchor .octicon-link {
+visibility: visible;
+}
+body {
+-ms-text-size-adjust: 100%;
+-webkit-text-size-adjust: 100%;
+color: #24292e;
+line-height: 1.5;
+font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
+font-size: 16px;
+line-height: 1.5;
+word-wrap: break-word;
+}
+.pl-c {
+color: #6a737d;
+}
+.pl-c1,
+.pl-s .pl-v {
+color: #005cc5;
+}
+.pl-e,
+.pl-en {
+color: #6f42c1;
+}
+.pl-s .pl-s1,
+.pl-smi {
+color: #24292e;
+}
+.pl-ent {
+color: #22863a;
+}
+.pl-k {
+color: #d73a49;
+}
+.pl-pds,
+.pl-s,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sra,
+.pl-sr .pl-sre {
+color: #032f62;
+}
+.pl-smw,
+.pl-v {
+color: #e36209;
+}
+.pl-bu {
+color: #b31d28;
+}
+.pl-ii {
+background-color: #b31d28;
+color: #fafbfc;
+}
+.pl-c2 {
+background-color: #d73a49;
+color: #fafbfc;
+}
+.pl-c2:before {
+content: "^M";
+}
+.pl-sr .pl-cce {
+color: #22863a;
+font-weight: 700;
+}
+.pl-ml {
+color: #735c0f;
+}
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+color: #005cc5;
+font-weight: 700;
+}
+.pl-mi {
+color: #24292e;
+font-style: italic;
+}
+.pl-mb {
+color: #24292e;
+font-weight: 700;
+}
+.pl-md {
+background-color: #ffeef0;
+color: #b31d28;
+}
+.pl-mi1 {
+background-color: #f0fff4;
+color: #22863a;
+}
+.pl-mc {
+background-color: #ffebda;
+color: #e36209;
+}
+.pl-mi2 {
+background-color: #005cc5;
+color: #f6f8fa;
+}
+.pl-mdr {
+color: #6f42c1;
+font-weight: 700;
+}
+.pl-ba {
+color: #586069;
+}
+.pl-sg {
+color: #959da5;
+}
+.pl-corl {
+color: #032f62;
+text-decoration: underline;
+}
+details {
+display: block;
+}
+summary {
+display: list-item;
+}
+a {
+background-color: transparent;
+}
+a:active,
+a:hover {
+outline-width: 0;
+}
+strong {
+font-weight: inherit;
+font-weight: bolder;
+}
+h1 {
+font-size: 2em;
+margin: .67em 0;
+}
+img {
+border-style: none;
+}
+code,
+kbd,
+pre {
+font-family: monospace,monospace;
+font-size: 1em;
+}
+hr {
+box-sizing: content-box;
+height: 0;
+overflow: visible;
+}
+input {
+font: inherit;
+margin: 0;
+}
+input {
+overflow: visible;
+}
+[type=checkbox] {
+box-sizing: border-box;
+padding: 0;
+}
+* {
+box-sizing: border-box;
+}
+input {
+font-family: inherit;
+font-size: inherit;
+line-height: inherit;
+}
+a {
+color: #0366d6;
+text-decoration: none;
+}
+a:hover {
+text-decoration: underline;
+}
+strong {
+font-weight: 600;
+}
+hr {
+background: transparent;
+border: 0;
+border-bottom: 1px solid #dfe2e5;
+height: 0;
+margin: 15px 0;
+overflow: hidden;
+}
+hr:before {
+content: "";
+display: table;
+}
+hr:after {
+clear: both;
+content: "";
+display: table;
+}
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+td,
+th {
+padding: 0;
+}
+details summary {
+cursor: pointer;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-bottom: 0;
+margin-top: 0;
+}
+h1 {
+font-size: 32px;
+}
+h1,
+h2 {
+font-weight: 600;
+}
+h2 {
+font-size: 24px;
+}
+h3 {
+font-size: 20px;
+}
+h3,
+h4 {
+font-weight: 600;
+}
+h4 {
+font-size: 16px;
+}
+h5 {
+font-size: 14px;
+}
+h5,
+h6 {
+font-weight: 600;
+}
+h6 {
+font-size: 12px;
+}
+p {
+margin-bottom: 10px;
+margin-top: 0;
+}
+blockquote {
+margin: 0;
+}
+ol,
+ul {
+margin-bottom: 0;
+margin-top: 0;
+padding-left: 0;
+}
+ol ol,
+ul ol {
+list-style-type: lower-roman;
+}
+ol ol ol,
+ol ul ol,
+ul ol ol,
+ul ul ol {
+list-style-type: lower-alpha;
+}
+dd {
+margin-left: 0;
+}
+code,
+pre {
+font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+font-size: 12px;
+}
+pre {
+margin-bottom: 0;
+margin-top: 0;
+}
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+-webkit-appearance: none;
+appearance: none;
+margin: 0;
+}
+.border {
+border: 1px solid #e1e4e8!important;
+}
+.border-0 {
+border: 0!important;
+}
+.border-bottom {
+border-bottom: 1px solid #e1e4e8!important;
+}
+.rounded-1 {
+border-radius: 3px!important;
+}
+.bg-white {
+background-color: #fff!important;
+}
+.bg-gray-light {
+background-color: #fafbfc!important;
+}
+.text-gray-light {
+color: #6a737d!important;
+}
+.mb-0 {
+margin-bottom: 0!important;
+}
+.my-2 {
+margin-bottom: 8px!important;
+margin-top: 8px!important;
+}
+.pl-0 {
+padding-left: 0!important;
+}
+.py-0 {
+padding-bottom: 0!important;
+padding-top: 0!important;
+}
+.pl-1 {
+padding-left: 4px!important;
+}
+.pl-2 {
+padding-left: 8px!important;
+}
+.py-2 {
+padding-bottom: 8px!important;
+padding-top: 8px!important;
+}
+.pl-3,
+.px-3 {
+padding-left: 16px!important;
+}
+.px-3 {
+padding-right: 16px!important;
+}
+.pl-4 {
+padding-left: 24px!important;
+}
+.pl-5 {
+padding-left: 32px!important;
+}
+.pl-6 {
+padding-left: 40px!important;
+}
+.f6 {
+font-size: 12px!important;
+}
+.lh-condensed {
+line-height: 1.25!important;
+}
+.text-bold {
+font-weight: 600!important;
+}
+a:not([href]) {
+color: inherit;
+text-decoration: none;
+}
+blockquote,
+dl,
+ol,
+p,
+pre,
+table,
+ul {
+margin-bottom: 16px;
+margin-top: 0;
+}
+hr {
+background-color: #e1e4e8;
+border: 0;
+height: .25em;
+margin: 24px 0;
+padding: 0;
+}
+blockquote {
+border-left: .25em solid #dfe2e5;
+color: #6a737d;
+padding: 0 1em;
+}
+blockquote>:first-child {
+margin-top: 0;
+}
+blockquote>:last-child {
+margin-bottom: 0;
+}
+kbd {
+background-color: #fafbfc;
+border: 1px solid #c6cbd1;
+border-bottom-color: #959da5;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #959da5;
+color: #444d56;
+display: inline-block;
+font-size: 11px;
+line-height: 10px;
+padding: 3px 5px;
+vertical-align: middle;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+font-weight: 600;
+line-height: 1.25;
+margin-bottom: 16px;
+margin-top: 24px;
+}
+h1 {
+font-size: 2em;
+}
+h1,
+h2 {
+border-bottom: 1px solid #eaecef;
+padding-bottom: .3em;
+}
+h2 {
+font-size: 1.5em;
+}
+h3 {
+font-size: 1.25em;
+}
+h4 {
+font-size: 1em;
+}
+h5 {
+font-size: .875em;
+}
+h6 {
+color: #6a737d;
+font-size: .85em;
+}
+ol,
+ul {
+padding-left: 2em;
+}
+ol ol,
+ol ul,
+ul ol,
+ul ul {
+margin-bottom: 0;
+margin-top: 0;
+}
+li {
+word-wrap: break-all;
+}
+li>p {
+margin-top: 16px;
+}
+li+li {
+margin-top: .25em;
+}
+dl {
+padding: 0;
+}
+dl dt {
+font-size: 1em;
+font-style: italic;
+font-weight: 600;
+margin-top: 16px;
+padding: 0;
+}
+dl dd {
+margin-bottom: 16px;
+padding: 0 16px;
+}
+table {
+display: block;
+overflow: auto;
+width: 100%;
+}
+table th {
+font-weight: 600;
+}
+table td,
+table th {
+border: 1px solid #dfe2e5;
+padding: 6px 13px;
+}
+table tr {
+background-color: #fff;
+border-top: 1px solid #c6cbd1;
+}
+table tr:nth-child(2n) {
+background-color: #f6f8fa;
+}
+img {
+background-color: #fff;
+box-sizing: content-box;
+max-width: 100%;
+}
+img[align=right] {
+padding-left: 20px;
+}
+img[align=left] {
+padding-right: 20px;
+}
+code {
+background-color: rgba(27,31,35,.05);
+border-radius: 3px;
+font-size: 85%;
+margin: 0;
+padding: .2em .4em;
+}
+pre {
+word-wrap: normal;
+}
+pre>code {
+background: transparent;
+border: 0;
+font-size: 100%;
+margin: 0;
+padding: 0;
+white-space: pre;
+word-break: normal;
+}
+.highlight {
+margin-bottom: 16px;
+}
+.highlight pre {
+margin-bottom: 0;
+word-break: normal;
+}
+.highlight pre,
+pre {
+background-color: #f6f8fa;
+border-radius: 3px;
+font-size: 85%;
+line-height: 1.45;
+overflow: auto;
+padding: 16px;
+}
+pre code {
+background-color: transparent;
+border: 0;
+display: inline;
+line-height: inherit;
+margin: 0;
+max-width: auto;
+overflow: visible;
+padding: 0;
+word-wrap: normal;
+}
+.commit-tease-sha {
+color: #444d56;
+display: inline-block;
+font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+font-size: 90%;
+}
+.blob-wrapper {
+border-bottom-left-radius: 3px;
+border-bottom-right-radius: 3px;
+overflow-x: auto;
+overflow-y: hidden;
+}
+.blob-wrapper-embedded {
+max-height: 240px;
+overflow-y: auto;
+}
+.blob-num {
+-moz-user-select: none;
+-ms-user-select: none;
+-webkit-user-select: none;
+color: rgba(27,31,35,.3);
+cursor: pointer;
+font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+font-size: 12px;
+line-height: 20px;
+min-width: 50px;
+padding-left: 10px;
+padding-right: 10px;
+text-align: right;
+user-select: none;
+vertical-align: top;
+white-space: nowrap;
+width: 1%;
+}
+.blob-num:hover {
+color: rgba(27,31,35,.6);
+}
+.blob-num:before {
+content: attr(data-line-number);
+}
+.blob-code {
+line-height: 20px;
+padding-left: 10px;
+padding-right: 10px;
+position: relative;
+vertical-align: top;
+}
+.blob-code-inner {
+color: #24292e;
+font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+font-size: 12px;
+overflow: visible;
+white-space: pre;
+word-wrap: normal;
+}
+.pl-token.active,
+.pl-token:hover {
+background: #ffea7f;
+cursor: pointer;
+}
+kbd {
+background-color: #fafbfc;
+border: 1px solid #d1d5da;
+border-bottom-color: #c6cbd1;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #c6cbd1;
+color: #444d56;
+display: inline-block;
+font: 11px SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+line-height: 10px;
+padding: 3px 5px;
+vertical-align: middle;
+}
+:checked+.radio-label {
+border-color: #0366d6;
+position: relative;
+z-index: 1;
+}
+.tab-size[data-tab-size="1"] {
+-moz-tab-size: 1;
+tab-size: 1;
+}
+.tab-size[data-tab-size="2"] {
+-moz-tab-size: 2;
+tab-size: 2;
+}
+.tab-size[data-tab-size="3"] {
+-moz-tab-size: 3;
+tab-size: 3;
+}
+.tab-size[data-tab-size="4"] {
+-moz-tab-size: 4;
+tab-size: 4;
+}
+.tab-size[data-tab-size="5"] {
+-moz-tab-size: 5;
+tab-size: 5;
+}
+.tab-size[data-tab-size="6"] {
+-moz-tab-size: 6;
+tab-size: 6;
+}
+.tab-size[data-tab-size="7"] {
+-moz-tab-size: 7;
+tab-size: 7;
+}
+.tab-size[data-tab-size="8"] {
+-moz-tab-size: 8;
+tab-size: 8;
+}
+.tab-size[data-tab-size="9"] {
+-moz-tab-size: 9;
+tab-size: 9;
+}
+.tab-size[data-tab-size="10"] {
+-moz-tab-size: 10;
+tab-size: 10;
+}
+.tab-size[data-tab-size="11"] {
+-moz-tab-size: 11;
+tab-size: 11;
+}
+.tab-size[data-tab-size="12"] {
+-moz-tab-size: 12;
+tab-size: 12;
+}
+.task-list-item {
+list-style-type: none;
+}
+.task-list-item+.task-list-item {
+margin-top: 3px;
+}
+.task-list-item input {
+margin: 0 .2em .25em -1.6em;
+vertical-align: middle;
+}
+hr {
+border-bottom-color: #eee;
+}
+.pl-0 {
+padding-left: 0!important;
+}
+.pl-1 {
+padding-left: 4px!important;
+}
+.pl-2 {
+padding-left: 8px!important;
+}
+.pl-3 {
+padding-left: 16px!important;
+}
+.pl-4 {
+padding-left: 24px!important;
+}
+.pl-5 {
+padding-left: 32px!important;
+}
+.pl-6 {
+padding-left: 40px!important;
+}
+.pl-7 {
+padding-left: 48px!important;
+}
+.pl-8 {
+padding-left: 64px!important;
+}
+.pl-9 {
+padding-left: 80px!important;
+}
+.pl-10 {
+padding-left: 96px!important;
+}
+.pl-11 {
+padding-left: 112px!important;
+}
+.pl-12 {
+padding-left: 128px!important;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">セキュリティ・キャンプ2025 全国大会 探査機自作ゼミ
+応募課題</h1>
+</header>
+<p>以下の文章は Markdown として記述しています。<br />
+視認性が悪い場合は <a href="https://sksat.net/misc/seccamp2025-entry.html">https://sksat.net/misc/seccamp2025-entry.html</a>
+を見てください。同一ソースのレンダリング結果を掲載します。</p>
+<h1 id="はじめに評価について">はじめに／評価について</h1>
+<p>この応募課題は、あなたに考えてもらい、講師があなたのことを知るためのものです。明確な答えのない設問となっているため、分からないと思っても、何をどう調べ、どう考えたかを途中まででもぜひ書いてみてください。</p>
+<ul>
+<li>評価は加点方式で行います
+<ul>
+<li>あなたが考えた道筋やあなたの熱意を重視します</li>
+<li>不正確なことを書いても減点するようなことはありません</li>
+<li>すべての回答が満足いくほど書けていなくても、とりあえず提出してみてほしいです</li>
+</ul></li>
+<li>文字数の制限はありません
+<ul>
+<li>ただし、回答の長さによって評価を行うようなことはしません</li>
+<li>短い回答は必要十分に簡潔であれば伝わりやすい一方で情報が不足するリスクが大きく、長い回答は情報量を増やしやすい分冗長にもなりやすいというトレードオフの関係にあります</li>
+</ul></li>
+<li>テキストのみで回答しにくい場合はファイルを添付してください
+<ul>
+<li>一部の設問では作図を要求しています
+<ul>
+<li>作図方法は問いません。なんらかの作図ツールを用いてもよいですし、紙やホワイトボードに描いたものの写真でもなんでも構いません。</li>
+</ul></li>
+<li>添付ファイルの形式は問いません</li>
+<li>すべての回答を１つの PDF
+ファイルにまとめて提出する、といったことをしてもよいです
+<ul>
+<li>この場合は、通常の課題回答欄に「添付ファイルで回答」といった文字列を入れておいてください</li>
+<li>図をたくさん描いて文章で適宜参照していくような書き方をする場合、こちらの方がみなさんも書きやすいし講師も読みやすい、ということもあると思います</li>
+</ul></li>
+</ul></li>
+<li>一部の設問には発展課題を付けています
+<ul>
+<li>発展課題の回答は任意とします
+<ul>
+<li>無理に回答するよりは、それ以外の回答を丁寧に考えて書いてもらうことに価値があります</li>
+<li>しかし、（応募の後でも）ぜひ考えてもらえるとうれしいです</li>
+</ul></li>
+<li>発展課題の回答は元の課題と混ぜて書いても構いません
+<ul>
+<li>つまり、Q3 の回答中で Q3.1 や Q3.2 の回答を含めてよいです</li>
+</ul></li>
+</ul></li>
+<li>回答を考えるにあたり、Web で情報収集をしたり、ChatGPT のような LLM
+を活用して構いません
+<ul>
+<li>適宜出典や引用元は明記してください</li>
+<li>LLM
+への入力（プロンプト）を回答に含めても、含めなくても構いません</li>
+</ul></li>
+<li>回答に擬似コードやソースコードを含めても構いません
+<ul>
+<li>実装のポイントや意図が分かるコメントがあると助かります</li>
+<li>（疑似）コードはロジックやインターフェースを分かりやすく伝える強力な道具のひとつです（たとえそれがソフトウェアでなかったとしても）</li>
+</ul></li>
+</ul>
+<h1 id="q1">Q1</h1>
+<p>あなたが今までに作ったことのあるものを自由に語ってください。複数人で作った場合は、どの部分をどのように担当したのかを明示してください。それがソフトウェア、もしくはソフトウェアを含むものであれば、どのような言語・ライブラリを使ったかも教えてください。作ったものが公開リポジトリなどにある場合は、そのリンクも書いてもらえるとうれしいです。</p>
+<h1 id="q11発展課題">Q1.1（発展課題）</h1>
+<p>Q1
+で作ったものを作る中であなたが感じた壁のうち、最もあなたにとって難しかったもの、もしくは、特に印象に残っているものを教えてください。あなたはその壁をどう調査し、克服しましたか？具体的に教えてください。壁が克服できなかった場合は、当時どうしたかに加えて、当時は何が不足していたと思われるか、今やり直すならどうするかなどの考えを聞かせてください。</p>
+<h1 id="q2">Q2</h1>
+<p>あなたの印象に残っている「これは便利だ」と感じたものを教えてください。工具でも、エディタやその拡張機能のようなソフトウェアでも、5回のクリックを1回にできるショートカットでも、なんでも構いません。</p>
+<p>また、それはなぜ便利だったのでしょうか？つまり、どのような課題があり、どう解決しているのでしょうか？</p>
+<h1 id="q21発展課題">Q2.1（発展課題）</h1>
+<p>どのようにすれば、そのような便利なものを自分で開発できるでしょうか？考えてみましょう。</p>
+<p>もし既に自分が作った便利なものがあれば、そのエピソードも教えてください．</p>
+<h1 id="q3">Q3</h1>
+<p>一般的な単色のボールペンを用意してください。ゼブラ JJ15
+のような、シンプルかつ外装が透明で中の構造が確認しやすいものが望ましいです。</p>
+<p>用意しましたか？それでは、このカチカチとペン先を出し入れする機構のことを考えながら、できるところまで分解してみましょう（元に戻せる自信が無ければ、他人のボールペンではやらないように注意！）。</p>
+<p>分解したら、各パーツをよく見て、この機構の仕組みを図を交えて解説してください。ペンは発明しているもののこのカチカチ機構はまだ存在していない世界の人にこのアイデアを伝えることを考えてみてください。</p>
+<p>追伸：ぜひ何度か組み上げたり分解したりしてみてほしいのですが、最後は元に戻すようにしてください。</p>
+<h1 id="q4">Q4</h1>
+<p>宇宙開発においては、「枯れた技術」と形容されるような、比較的古めの技術が使われることが多いです。特に情報技術においては一般的なIT業界と比較して10年、20年程度の開きがあることも珍しくありません。例えば、C89
+や XML が幅を効かせていることはよくあり、PIC・SHマイコン、PowerPC、SPARC
+も現役で使われていることはしばしばあります。</p>
+<p>これはなぜでしょうか？そして、この方針にはどのようなメリット・デメリットがあるでしょうか？
+ソフトウェア以外とソフトウェアの両方の面について、それぞれ論じてください。</p>
+<h1 id="q41発展課題">Q4.1（発展課題）</h1>
+<p>ちなみに、講師の sksat はかなり新しいエコシステムである Rust
+を実際に仕事の衛星開発で使っており、講義でも Rust
+を使用する予定です。つまり、前述の「枯れた技術」に対して、少なくともソフトウェア開発の観点ではある種否定的な立場なわけです。これに意見があれば自由に述べてください。</p>
+<p>ヒント：意見は賛成でも反対でも「それでは足りない」のようなものでも構いません。sksat
+と意見が異なっても減点するようなことはありません。意見がすれ違うのは当然のことです。ぜひ語り合いましょう！</p>
+<h1 id="q5">Q5</h1>
+<p>宇宙機はロケットという輸送手段で地上から宇宙に輸送され、軌道にデプロイされます。一度デプロイされた宇宙機は、原則として物理的に修理することができません。なぜなら、宇宙に出張に行って機体に近づいて蓋を開けることがほとんど不可能だからです。そこに行って蓋を開けられないということは、ノートPCを持っていってデバッガをアタッチし、ソフトウェアを書き換えることもできません。この性質は「非修理系」と呼ばれています。</p>
+<p>これは非常に不便な特性です。打ち上げて運用を開始してからバグが見つかったらどうしましょう？そのバグは姿勢制御系の秘孔を突いて高速回転を発生させ、遠心力で機体が破壊されてしまうような致命的なものかもしれません。</p>
+<p>また、バグでなくとも、途中から要求が変わるかもしれません。例えば気象目的の人工衛星で、特定の種類の雲を衛星上で認識するミッションがあるとします。これは問題なく動作していたのですが、運用開始後に別の種類の雲を衛星画像から判定するアルゴリズムが新たに開発されました。これを即座に軌道上の衛星に組み込めると非常に価値があります。</p>
+<p>このような問題に対して、どのような技術的解決が考えられるでしょうか？また、どのように宇宙機やそのソフトウェア、送信するコマンド群などの運用計画を設計しておけば、運用時に後から発生する問題に対して対処しやすくなるでしょうか？自由に提案してみてください。</p>
+<p>ヒント：漠然としていて考えにくい場合は、宇宙機を普通のLinuxサーバだと仮定してみるとよいでしょう。ただし、物理筐体を直接操作することはできず、通信機会が1回数分で1日に1回程度の不便なサーバです。インターネットにも繋がっていません。このような制限は適宜調べたり、想像してみたりしてください。</p>
+<h1 id="q6">Q6</h1>
+<p>このゼミで自作する探査機で探査してみたいものや、やってみたいことを自由に述べてください。<br />
+実現可能性などはさておいて、ブレインストーミング的に自由にアイデアを書いてみてください。</p>
+<p>余裕があれば、それを実現するための手立てをできるだけ具体的に考えてみてください。</p>
+</body>
+</html>
