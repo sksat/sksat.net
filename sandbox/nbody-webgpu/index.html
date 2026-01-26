@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>N-Body Gravity Simulation - sksat.net/sandbox</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uplot@1.6.32/dist/uPlot.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/uplot@1.6.32/dist/uPlot.iife.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #0a0a14;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      padding: 10px 20px;
+      background: rgba(10, 10, 20, 0.9);
+      border-bottom: 1px solid #2a2a3e;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(18, 18, 30, 0.95);
+      border: 1px solid #2a2a3e;
+      border-radius: 8px;
+      padding: 15px;
+      z-index: 10;
+      min-width: 200px;
+    }
+
+    .controls h2 {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #888;
+    }
+
+    .control-group {
+      margin-bottom: 12px;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .control-group select,
+    .control-group input[type="range"] {
+      width: 100%;
+    }
+
+    .control-group select {
+      background: #1a1a2e;
+      border: 1px solid #2a2a3e;
+      color: #e0e0e0;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .control-group input[type="range"] {
+      -webkit-appearance: none;
+      background: #1a1a2e;
+      border-radius: 4px;
+      height: 6px;
+    }
+
+    .control-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #6eb5ff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .control-value {
+      font-size: 11px;
+      color: #6eb5ff;
+      float: right;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #e0e0e0;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #6eb5ff;
+      cursor: pointer;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .button-group button {
+      flex: 1;
+      background: #1e1e3e;
+      border: 1px solid #3a3a5e;
+      color: #e0e0e0;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+
+    .button-group button:hover {
+      background: #2e2e4e;
+    }
+
+    .button-group button.primary {
+      background: #2a4a6e;
+      border-color: #4a6a8e;
+    }
+
+    .button-group button.primary:hover {
+      background: #3a5a7e;
+    }
+
+    .stats {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(18, 18, 30, 0.95);
+      border: 1px solid #2a2a3e;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-size: 12px;
+      color: #888;
+      z-index: 10;
+      min-width: 180px;
+    }
+
+    .stats > span {
+      color: #6eb5ff;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    #energy-graph {
+      margin: 8px 0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .energy-values {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 10px;
+      color: #666;
+    }
+
+    .energy-values span span {
+      color: #6eb5ff;
+      font-family: monospace;
+    }
+
+    .instructions {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(18, 18, 30, 0.9);
+      border: 1px solid #2a2a3e;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-size: 11px;
+      color: #666;
+      z-index: 10;
+    }
+
+    .error-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 10, 20, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .error-box {
+      background: #1e1414;
+      border: 1px solid #4a2020;
+      border-radius: 8px;
+      padding: 30px;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .error-box h2 {
+      color: #f44336;
+      margin: 0 0 15px 0;
+    }
+
+    .error-box p {
+      color: #aaa;
+      margin: 0 0 15px 0;
+      line-height: 1.5;
+    }
+
+    .error-box a {
+      color: #6eb5ff;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 600px) {
+      .controls {
+        top: auto;
+        bottom: 60px;
+        left: 10px;
+        right: 10px;
+        min-width: auto;
+      }
+
+      .stats {
+        top: 10px;
+        right: 10px;
+      }
+
+      .instructions {
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <header>
+      <h1><a href="/">sksat.net</a> / <a href="/sandbox/">sandbox</a> / N-Body Gravity Simulation</h1>
+    </header>
+
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+
+      <div class="controls">
+        <h2>Parameters</h2>
+
+        <div class="control-group">
+          <label for="preset">Preset</label>
+          <select id="preset">
+            <option value="galaxy" selected>Galaxy</option>
+            <option value="random">Random Cluster</option>
+            <option value="binary">Binary System</option>
+            <option value="solar">Solar System</option>
+            <option value="collision">Cluster Collision</option>
+          </select>
+        </div>
+
+        <div class="control-group" id="particles-group">
+          <label for="particles">Particles</label>
+          <select id="particles">
+            <option value="256">256</option>
+            <option value="512">512</option>
+            <option value="1024" selected>1024</option>
+            <option value="2048">2048</option>
+            <option value="4096">4096</option>
+            <option value="8192">8192</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="gravity">
+            Gravity (G)
+            <span class="control-value" id="gravity-value">1.00</span>
+          </label>
+          <input type="range" id="gravity" min="0.1" max="5" step="0.1" value="1">
+        </div>
+
+        <div class="control-group">
+          <label for="timestep">
+            Time Step (dt)
+            <span class="control-value" id="timestep-value">2.0e-3</span>
+          </label>
+          <input type="range" id="timestep" min="0.000001" max="0.01" step="any" value="0.002">
+        </div>
+
+        <div class="control-group">
+          <label for="integrator">Integrator</label>
+          <select id="integrator">
+            <option value="euler">Euler (1st)</option>
+            <option value="leapfrog">Leapfrog (2nd)</option>
+            <option value="verlet" selected>Velocity Verlet (2nd)</option>
+            <option value="rk4">RK4 (4th)</option>
+          </select>
+        </div>
+
+        <div class="control-group checkbox-group">
+          <label>
+            <input type="checkbox" id="trail">
+            Show Trails
+          </label>
+        </div>
+
+        <div class="button-group">
+          <button id="play-pause" class="primary">Play</button>
+          <button id="reset">Reset</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <span id="fps">-- FPS</span>
+        <div id="energy-graph"></div>
+        <div class="energy-values">
+          <span>E: <span id="total-energy">--</span></span>
+          <span>ΔE: <span id="energy-drift">--</span></span>
+        </div>
+      </div>
+
+      <div class="instructions">
+        Drag to rotate | Scroll to zoom
+      </div>
+
+      <div id="error-overlay" class="error-overlay hidden">
+        <div class="error-box">
+          <h2>WebGPU Not Supported</h2>
+          <p id="error-message">
+            This application requires WebGPU, which is not available in your browser.
+          </p>
+          <div id="error-details" style="text-align: left; font-size: 11px; background: #1a1a2e; padding: 10px; border-radius: 4px; margin: 10px 0;">
+            <p><strong>For Firefox on Linux:</strong></p>
+            <ol style="margin: 5px 0; padding-left: 20px;">
+              <li>Open <code>about:config</code></li>
+              <li>Set <code>dom.webgpu.enabled</code> = true</li>
+              <li>Set <code>gfx.webgpu.force-enabled</code> = true</li>
+              <li>Restart Firefox</li>
+            </ol>
+            <p><strong>For Chrome/Chromium:</strong></p>
+            <ol style="margin: 5px 0; padding-left: 20px;">
+              <li>Open <code>chrome://flags</code></li>
+              <li>Enable "Unsafe WebGPU"</li>
+              <li>Restart browser</li>
+            </ol>
+          </div>
+          <p>
+            Or try <a href="https://www.google.com/chrome/">Chrome</a> /
+            <a href="https://www.microsoft.com/edge">Edge</a> 113+ on Windows/macOS.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { App } from './app.js';
+
+    async function main() {
+      const canvas = document.getElementById('canvas');
+      const errorOverlay = document.getElementById('error-overlay');
+      const errorMessage = document.getElementById('error-message');
+
+      const controls = {
+        playPause: document.getElementById('play-pause'),
+        reset: document.getElementById('reset'),
+        preset: document.getElementById('preset'),
+        particles: document.getElementById('particles'),
+        particlesGroup: document.getElementById('particles-group'),
+        gravity: document.getElementById('gravity'),
+        gravityValue: document.getElementById('gravity-value'),
+        timestep: document.getElementById('timestep'),
+        timestepValue: document.getElementById('timestep-value'),
+        integrator: document.getElementById('integrator'),
+        trail: document.getElementById('trail'),
+        fps: document.getElementById('fps'),
+        energyGraph: document.getElementById('energy-graph'),
+        totalEnergy: document.getElementById('total-energy'),
+        energyDrift: document.getElementById('energy-drift'),
+      };
+
+      // Hide particles dropdown for presets with fixed particle count
+      function updateParticlesVisibility() {
+        const preset = controls.preset.value;
+        const fixedPresets = ['solar', 'binary'];
+        controls.particlesGroup.style.display = fixedPresets.includes(preset) ? 'none' : 'block';
+      }
+      controls.preset.addEventListener('change', updateParticlesVisibility);
+      updateParticlesVisibility();
+
+      try {
+        const app = new App(canvas, controls);
+        await app.initialize();
+
+        // Initial render
+        app.renderer.render();
+
+        // Space key to toggle play/pause
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' && e.target === document.body) {
+            e.preventDefault();
+            app.togglePlay();
+          }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+          app.destroy();
+        });
+      } catch (error) {
+        console.error('Initialization error:', error);
+        errorMessage.textContent = error.message;
+        errorOverlay.classList.remove('hidden');
+      }
+    }
+
+    main();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "path": "nbody-webgpu/",
+      "name": "N-Body Gravity Simulation",
+      "description": "WebGPU compute shader を使用した N体重力シミュレーション",
+      "requirements": {
+        "webgpu": true
+      }
+    }
+  ]
+}
