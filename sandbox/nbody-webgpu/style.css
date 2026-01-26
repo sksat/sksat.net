@@ -1,0 +1,107 @@
+/* Sandbox Common Styles */
+
+body {
+  font-family: 'Koruri', sans-serif;
+  font-size: 14px;
+  background: #0a0a14;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+a {
+  color: #6eb5ff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+header {
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: 24px;
+  margin: 0 0 10px 0;
+}
+
+header h1 a {
+  color: #e0e0e0;
+}
+
+header p {
+  color: #888;
+  margin: 0;
+}
+
+/* Test Runner Styles */
+.test-summary {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #12121e;
+  border-radius: 8px;
+}
+
+.test-summary h2 {
+  margin: 0 0 15px 0;
+}
+
+.test-summary .passed {
+  color: #4caf50;
+  margin: 5px 0;
+}
+
+.test-summary .failed {
+  color: #f44336;
+  margin: 5px 0;
+}
+
+.test-suite {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #12121e;
+  border-radius: 8px;
+}
+
+.test-suite h3 {
+  margin: 0 0 15px 0;
+  color: #6eb5ff;
+}
+
+.test-suite ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.test-suite li {
+  padding: 8px 0;
+  border-bottom: 1px solid #2a2a3e;
+}
+
+.test-suite li:last-child {
+  border-bottom: none;
+}
+
+.test-passed .test-icon {
+  color: #4caf50;
+  margin-right: 10px;
+}
+
+.test-failed .test-icon {
+  color: #f44336;
+  margin-right: 10px;
+}
+
+.test-error {
+  margin: 10px 0 0 24px;
+  padding: 10px;
+  background: #1e1414;
+  border-radius: 4px;
+  color: #f44336;
+  font-size: 12px;
+  overflow-x: auto;
+}

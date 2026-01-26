@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>N-Body WebGPU Tests</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <header>
+    <h1><a href="/">sksat.net</a> / <a href="/sandbox/">sandbox</a> / <a href="../">nbody-webgpu</a> / tests</h1>
+  </header>
+
+  <main>
+    <div id="results">
+      <p class="loading">Running tests...</p>
+    </div>
+  </main>
+
+  <script type="module">
+    import { renderResults } from './test-runner.js';
+    import { runner as physicsRunner } from './physics.test.js';
+
+    async function runAllTests() {
+      const resultsDiv = document.getElementById('results');
+
+      try {
+        console.log('Running physics tests...');
+        const physicsResults = await physicsRunner.run();
+
+        // Combine results
+        const totalResults = {
+          passed: physicsResults.passed,
+          failed: physicsResults.failed,
+          suites: physicsResults.suites,
+        };
+
+        renderResults(totalResults, resultsDiv);
+      } catch (error) {
+        resultsDiv.innerHTML = `<p class="error">Test runner error: ${error.message}</p>`;
+        console.error(error);
+      }
+    }
+
+    runAllTests();
+  </script>
+</body>
+
+</html>
