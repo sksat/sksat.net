@@ -1,0 +1,395 @@
+/* rover-sim styles */
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0e1116;
+  --panel: #161b22;
+  --panel2: #10141c;
+  --border: #262c36;
+  --text: #dfe3ea;
+  --muted: #8a93a2;
+  --accent: #6eb5ff;
+  --green: #4caf50;
+  --red: #f06060;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex-shrink: 0;
+}
+
+.app-header h1 {
+  font-size: 15px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.app-header h1 a {
+  color: var(--text);
+}
+
+.app-header .subtitle {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.app-header .tests-link {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---- シミュレータペイン ---- */
+
+.sim-pane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.sim-pane:fullscreen {
+  background: var(--bg);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.toolbar .status {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.toolbar .status .state-run { color: var(--green); }
+.toolbar .status .state-pause { color: var(--muted); }
+.toolbar .status .state-error { color: var(--red); }
+
+button,
+select {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text);
+  background: #1c2330;
+  border: 1px solid #303948;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+button:hover,
+select:hover {
+  background: #242d3d;
+}
+
+button.primary {
+  background: #274a72;
+  border-color: #3a6491;
+}
+
+button.primary:hover {
+  background: #2f5885;
+}
+
+.canvas-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+#canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---- スプリッタ ---- */
+
+.splitter {
+  width: 5px;
+  cursor: col-resize;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.splitter:hover,
+.splitter.dragging {
+  background: var(--accent);
+}
+
+/* ---- IDE ペイン ---- */
+
+.ide-pane {
+  width: 44%;
+  min-width: 300px;
+  max-width: 75%;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel2);
+  border-left: 1px solid var(--border);
+}
+
+.ide-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.ide-tabs .tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 5px 12px;
+}
+
+.ide-tabs .tab.active {
+  background: var(--panel2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.ide-tabs .spacer {
+  flex: 1;
+}
+
+.editors {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.editor-slot {
+  position: absolute;
+  inset: 0;
+}
+
+.editor-slot.hidden {
+  display: none;
+}
+
+/* ---- コードエディタ (highlight.js の CodeEditor) ---- */
+
+.code-editor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #12161e;
+}
+
+.ce-highlight,
+.ce-input {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  tab-size: 2;
+  margin: 0;
+  padding: 10px 12px;
+  border: 0;
+  white-space: pre;
+  word-wrap: normal;
+}
+
+.ce-highlight {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: #dcdfe4;
+}
+
+.ce-highlight code {
+  font: inherit;
+}
+
+.ce-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  resize: none;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  caret-color: #fff;
+}
+
+.ce-input::selection {
+  background: rgba(110, 181, 255, 0.25);
+}
+
+/* トークン色 */
+.tok-keyword { color: #c678dd; }
+.tok-literal { color: #d19a66; }
+.tok-builtin { color: #61afef; }
+.tok-string { color: #98c379; }
+.tok-number { color: #d19a66; }
+.tok-comment { color: #7f848e; font-style: italic; }
+
+/* ---- センサ / コンソール ---- */
+
+.ide-bottom {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  max-height: 40%;
+}
+
+.ide-bottom h2 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0;
+  padding: 6px 10px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.monitor {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.monitor-col {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.monitor-col + .monitor-col {
+  border-left: 1px solid var(--border);
+}
+
+.monitor table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.monitor td {
+  padding: 3px 10px;
+  border-top: 1px solid #1d232d;
+  white-space: nowrap;
+}
+
+.monitor td.sensor-id {
+  color: var(--accent);
+  width: 1%;
+}
+
+.monitor .chip {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  vertical-align: -1px;
+  margin-right: 6px;
+}
+
+.console-box {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#console {
+  overflow-y: auto;
+  min-height: 72px;
+  max-height: 160px;
+  padding: 2px 10px 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#console .line { color: var(--text); }
+#console .line .log-time { color: var(--muted); margin-right: 8px; }
+#console .line.info { color: var(--muted); }
+#console .line.ok { color: var(--green); }
+#console .line.error { color: var(--red); }
+
+/* ---- モバイル ---- */
+
+@media (max-width: 860px) {
+  .main {
+    flex-direction: column;
+  }
+
+  .splitter {
+    display: none;
+  }
+
+  .ide-pane {
+    width: 100% !important;
+    max-width: none;
+    height: 48%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
