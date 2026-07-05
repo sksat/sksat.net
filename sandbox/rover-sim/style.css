@@ -118,6 +118,7 @@ a:hover {
 .toolbar .status .state-run { color: var(--green); }
 .toolbar .status .state-pause { color: var(--muted); }
 .toolbar .status .state-error { color: var(--red); }
+.toolbar .status .state-touch { color: #e5a45a; }
 
 button,
 select {

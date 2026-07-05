@@ -12,6 +12,7 @@ import {
   sampleGround,
   compileWorld,
   compileFirmware,
+  roverCollides,
   Simulation,
 } from '../sim.js';
 import { SAMPLES, SAMPLE_WORLD, SAMPLE_FIRMWARE } from '../samples.js';
@@ -247,6 +248,72 @@ describe('compileWorld (シミュレータ側スクリプト)', () => {
   });
 });
 
+describe('roverCollides (形状を考慮した衝突判定)', () => {
+  // body デフォルト: length 0.22, width 0.16
+  const world = compileWorld(MINI_WORLD); // 2x2, 壁なし
+
+  it('マップ中央では衝突しない', () => {
+    assert.false(roverCollides(world, { x: 1, y: 1, heading: 0 }));
+  });
+
+  it('中心がマップ内でも車体がはみ出せば衝突', () => {
+    // 前端 = x + 0.11 > 2
+    assert.true(roverCollides(world, { x: 1.95, y: 1, heading: 0 }));
+    assert.false(roverCollides(world, { x: 1.85, y: 1, heading: 0 }));
+  });
+
+  it('回転を考慮する (同じ位置でも向きで判定が変わる)', () => {
+    // heading 0: 下端 = y - width/2 = 0.06 - 0.08 < 0 → 衝突
+    assert.true(roverCollides(world, { x: 1, y: 0.06, heading: 0 }));
+    // 十分内側なら OK
+    assert.false(roverCollides(world, { x: 1, y: 0.12, heading: 0 }));
+    // 同じ y=0.12 でも縦向き (length/2 = 0.11 が下を向く) だと衝突
+    assert.true(roverCollides(world, { x: 1, y: 0.1, heading: Math.PI / 2 }));
+  });
+
+  it('map.wall(x, y) で定義した壁と衝突する', () => {
+    const w = compileWorld(`
+      const map = { width: 2, height: 2, ground() { return '#fff'; }, wall(x, y) { return x > 1.5; } };
+      const rover = { drive() { return {}; } };
+    `);
+    assert.false(roverCollides(w, { x: 1.3, y: 1, heading: 0 })); // 前端 1.41 < 1.5
+    assert.true(roverCollides(w, { x: 1.45, y: 1, heading: 0 })); // 前端 1.56 > 1.5
+  });
+});
+
+describe('compileWorld (壁)', () => {
+  it('map.wall は省略可能', () => {
+    const world = compileWorld(MINI_WORLD);
+    assert.equal(world.map.wall, null);
+  });
+
+  it('map.wall が関数ならそのまま使われる', () => {
+    const world = compileWorld(`
+      const map = { width: 2, height: 2, ground() { return '#fff'; }, wall(x, y) { return x > 1; } };
+      const rover = { drive() { return {}; } };
+    `);
+    assert.equal(typeof world.map.wall, 'function');
+  });
+
+  it('map.wall が関数以外ならエラー', () => {
+    assert.throws(() =>
+      compileWorld(`
+        const map = { width: 2, height: 2, ground() { return '#fff'; }, wall: true };
+        const rover = { drive() { return {}; } };
+      `)
+    );
+  });
+
+  it('壁の上を読むと wall フラグ付きのセンサ値になる', () => {
+    const world = compileWorld(`
+      const map = { width: 2, height: 2, ground() { return '#ffffff'; }, wall(x, y) { return x > 1.5; } };
+      const rover = { drive() { return {}; } };
+    `);
+    assert.true(sampleGround(world.map, 1.8, 1).wall === true);
+    assert.falsy(sampleGround(world.map, 0.5, 1).wall);
+  });
+});
+
 describe('compileFirmware (探査機内部スクリプト)', () => {
   it('loop を定義したスクリプトをコンパイルできる', () => {
     const fw = compileFirmware('function loop(rover, dt) {}');
@@ -321,13 +388,54 @@ describe('Simulation (統合)', () => {
     assert.approximately(sim.pose.y, 1.2, 1e-6);
   });
 
-  it('探査機はマップ境界でクランプされる', () => {
+  it('マップ境界には形状 (車体前端) がぶつかった位置で止まる', () => {
     const sim = makeSim(
       MINI_WORLD,
       `function loop(rover, dt) { rover.set('wheel-left', 0.5); rover.set('wheel-right', 0.5); }`
     );
     for (let i = 0; i < 600; i++) sim.step(DT); // 10 s → 5 m 相当
-    assert.approximately(sim.pose.x, 2, 1e-9, 'マップ右端で止まる');
+    // 車体前端 (中心 + length/2 = 0.11) が右端に接する位置で停止
+    assert.approximately(sim.pose.x, 2 - 0.11, 2e-3, '前端がマップ右端に接して止まる');
+    assert.true(sim.collided, '接触フラグが立つ');
+    assert.equal(sim.error, null);
+    assert.false(roverCollides(sim.world, sim.pose), 'めり込まない');
+  });
+
+  it('map.wall の壁にも形状がぶつかった位置で止まる', () => {
+    const sim = makeSim(
+      `
+      const map = { width: 4, height: 2, ground() { return '#fff'; }, wall(x, y) { return x > 2.5; } };
+      const rover = { start: { x: 1, y: 1, heading: 0 }, drive(act) { return { vx: act['f'] || 0, vy: 0, omega: 0 }; }, actuators: [{ id: 'f' }] };
+      `,
+      `function loop(rover, dt) { rover.set('f', 0.5); }`
+    );
+    for (let i = 0; i < 600; i++) sim.step(DT); // 10 s
+    assert.approximately(sim.pose.x, 2.5 - 0.11, 2e-3, '前端が壁面に接して止まる');
+    assert.equal(sim.error, null);
+    assert.false(roverCollides(sim.world, sim.pose));
+    // 後進すれば離れられる
+    sim.commands['f'] = 0; // 念のためリセット
+    const fwBack = compileFirmware(`function loop(rover, dt) { rover.set('f', -0.3); }`);
+    sim.firmware = fwBack;
+    for (let i = 0; i < 60; i++) sim.step(DT);
+    assert.true(sim.pose.x < 2.3, '壁から離れて後進できる');
+  });
+
+  it('壁の中でスタートしても警告ログを出して動ける (永久フリーズしない)', () => {
+    const sim = makeSim(
+      `
+      const map = { width: 4, height: 2, ground() { return '#fff'; }, wall(x, y) { return x < 1.5; } };
+      const rover = { start: { x: 1, y: 1, heading: 0 }, drive(act) { return { vx: act['f'] || 0, vy: 0, omega: 0 }; }, actuators: [{ id: 'f' }] };
+      `,
+      `function loop(rover, dt) { rover.set('f', 0.5); }`
+    );
+    for (let i = 0; i < 300; i++) sim.step(DT); // 5 s → 壁の外へ脱出できる
+    assert.equal(sim.error, null);
+    assert.true(sim.pose.x > 1.6, `壁から脱出できる (x = ${sim.pose.x})`);
+    assert.true(
+      sim.logs.some((l) => l.message.includes('警告')),
+      '警告ログが出る'
+    );
   });
 
   it('ground センサは機体位置・向きに応じた地面を読む', () => {
@@ -465,6 +573,15 @@ describe('サンプルデモ (前進・後進の繰り返し)', () => {
     assert.true(world.rover.sensors.length >= 1, 'センサが載っている');
     assert.equal(world.rover.actuators.length, 2, '左右タイヤの 2 アクチュエータ');
     assert.equal(typeof world.rover.drive, 'function', '運動モデルもスクリプト側で定義');
+    assert.equal(typeof world.map.wall, 'function', '壁の設置例が入っている');
+  });
+
+  it('サンプルの壁は前進・後進デモの経路上にはない', () => {
+    const world = compileWorld(SAMPLE_WORLD);
+    // デモは x 1.7 → 2.3 を往復する (前端 +0.11)
+    for (let x = 1.5; x <= 2.5; x += 0.05) {
+      assert.false(roverCollides(world, { x, y: 1.5, heading: 0 }), `x=${x} で衝突しない`);
+    }
   });
 
   it('最初の 2 秒は前進する', () => {

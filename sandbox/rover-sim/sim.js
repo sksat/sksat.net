@@ -132,7 +132,13 @@ export function normalizeGround(raw) {
   return { color, hex: toHex(color), brightness: brightness(color), temperature };
 }
 
-/** ワールド座標 (x, y) の地面パラメータを読む。マップ外は黒 + outside フラグ */
+/** 壁の見た目・センサ読み値の色 */
+export const WALL_COLOR = { r: 57, g: 64, b: 77 }; // '#39404d'
+
+/**
+ * ワールド座標 (x, y) の地面パラメータを読む。
+ * マップ外は黒 + outside フラグ、壁 (map.wall) の上は壁色 + wall フラグ。
+ */
 export function sampleGround(map, x, y) {
   if (x < 0 || x > map.width || y < 0 || y > map.height) {
     return {
@@ -143,7 +149,40 @@ export function sampleGround(map, x, y) {
       outside: true,
     };
   }
+  if (map.wall && map.wall(x, y)) {
+    return {
+      color: { ...WALL_COLOR },
+      hex: toHex(WALL_COLOR),
+      brightness: brightness(WALL_COLOR),
+      temperature: DEFAULT_TEMPERATURE,
+      wall: true,
+    };
+  }
   return normalizeGround(map.ground(x, y));
+}
+
+/**
+ * 探査機の形状 (body の矩形、回転込み) がマップ外周または map.wall の壁と
+ * 重なるかを判定する。矩形を約 2cm 間隔でグリッドサンプリングして調べる。
+ * parts (見た目の装飾) は判定に含まない。
+ */
+export function roverCollides(world, pose) {
+  const map = world.map;
+  const { length: L, width: W } = world.rover.body;
+  const solid = (x, y) =>
+    x < 0 || x > map.width || y < 0 || y > map.height || (map.wall ? !!map.wall(x, y) : false);
+
+  const nx = Math.max(3, Math.ceil(L / 0.02) + 1);
+  const ny = Math.max(3, Math.ceil(W / 0.02) + 1);
+  for (let i = 0; i < nx; i++) {
+    const lx = -L / 2 + (L * i) / (nx - 1);
+    for (let j = 0; j < ny; j++) {
+      const ly = -W / 2 + (W * j) / (ny - 1);
+      const p = localToWorld(pose, lx, ly);
+      if (solid(p.x, p.y)) return true;
+    }
+  }
+  return false;
 }
 
 function evalScript(source, returnExpr, label) {
@@ -185,6 +224,9 @@ export function compileWorld(source) {
   }
   if (typeof map.ground !== 'function') {
     throw new Error('map.ground(x, y) 関数を定義してください');
+  }
+  if (map.wall !== undefined && map.wall !== null && typeof map.wall !== 'function') {
+    throw new Error('map.wall は関数 (x, y) => boolean で定義してください');
   }
 
   const rover = defs.rover;
@@ -247,7 +289,7 @@ export function compileWorld(source) {
   }
 
   return {
-    map: { width, height, ground: map.ground },
+    map: { width, height, ground: map.ground, wall: typeof map.wall === 'function' ? map.wall : null },
     rover: {
       start: {
         x: Number.isFinite(+start.x) ? +start.x : width / 2,
@@ -313,6 +355,8 @@ export class Simulation {
     this.commands = {};
     for (const a of this.world.rover.actuators) this.commands[a.id] = a.initial;
     this.twist = { vx: 0, vy: 0, omega: 0 };
+    this.collided = false;
+    this._warnedInsideWall = false;
     this.time = 0;
     this.logs = [];
     this.memory = {};
@@ -399,15 +443,46 @@ export class Simulation {
         vy: +twist.vy || 0,
         omega: +twist.omega || 0,
       };
+
+      this.pose = this._resolveMotion(this.twist, dt);
     } catch (e) {
       this.error = e instanceof Error ? e : new Error(String(e));
       this._log(`ERROR: ${this.error.message}`);
       return;
     }
 
-    this.pose = stepTwist(this.pose, this.twist, dt);
-    this.pose.x = clamp(this.pose.x, 0, this.world.map.width);
-    this.pose.y = clamp(this.pose.y, 0, this.world.map.height);
     this.time += dt;
+  }
+
+  /**
+   * 衝突を考慮して 1 ステップ分の移動先を決める。
+   * 移動先が壁 (マップ外周含む) と重なる場合は、接触するまでの
+   * 最大割合を二分探索して手前で止める。
+   */
+  _resolveMotion(twist, dt) {
+    this.collided = false;
+    const candidate = stepTwist(this.pose, twist, dt);
+
+    if (roverCollides(this.world, this.pose)) {
+      // すでに壁と重なっている (開始位置が壁の中など) 場合は
+      // 判定をスキップして脱出できるようにする
+      if (!this._warnedInsideWall) {
+        this._warnedInsideWall = true;
+        this._log('警告: 探査機が壁と重なっています');
+      }
+      return candidate;
+    }
+
+    if (!roverCollides(this.world, candidate)) return candidate;
+
+    this.collided = true;
+    let lo = 0;
+    let hi = 1;
+    for (let k = 0; k < 7; k++) {
+      const mid = (lo + hi) / 2;
+      if (roverCollides(this.world, stepTwist(this.pose, twist, dt * mid))) hi = mid;
+      else lo = mid;
+    }
+    return stepTwist(this.pose, twist, dt * lo);
   }
 }

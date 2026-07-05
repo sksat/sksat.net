@@ -156,6 +156,7 @@ export function initApp() {
 
     const colorImg = ctx.createImageData(tw, th);
     const temps = new Float64Array(tw * th);
+    const wallMask = new Uint8Array(tw * th);
     let tMin = Infinity;
     let tMax = -Infinity;
     let groundErrors = 0;
@@ -172,15 +173,21 @@ export function initApp() {
           groundErrors++;
           g = { color: { r: 60, g: 60, b: 60 }, temperature: 20 };
         }
-        const o = (py * tw + px) * 4;
+        const i = py * tw + px;
+        const o = i * 4;
         colorImg.data[o] = g.color.r;
         colorImg.data[o + 1] = g.color.g;
         colorImg.data[o + 2] = g.color.b;
         colorImg.data[o + 3] = 255;
-        const t = g.temperature;
-        temps[py * tw + px] = t;
-        if (t < tMin) tMin = t;
-        if (t > tMax) tMax = t;
+        if (g.wall) {
+          // 壁は温度を持たないので温度レンジから除外する
+          wallMask[i] = 1;
+        } else {
+          const t = g.temperature;
+          temps[i] = t;
+          if (t < tMin) tMin = t;
+          if (t > tMax) tMax = t;
+        }
       }
     }
     colorCanvas.getContext('2d').putImageData(colorImg, 0, 0);
@@ -188,9 +195,17 @@ export function initApp() {
     const tempImg = ctx.createImageData(tw, th);
     const range = tMax - tMin;
     for (let i = 0; i < temps.length; i++) {
+      const o = i * 4;
+      if (wallMask[i]) {
+        // 壁は温度ビューでも壁色で描く
+        tempImg.data[o] = colorImg.data[o];
+        tempImg.data[o + 1] = colorImg.data[o + 1];
+        tempImg.data[o + 2] = colorImg.data[o + 2];
+        tempImg.data[o + 3] = 255;
+        continue;
+      }
       const u = range > 1e-9 ? (temps[i] - tMin) / range : 0.5;
       const c = tempColor(u);
-      const o = i * 4;
       tempImg.data[o] = c.r;
       tempImg.data[o + 1] = c.g;
       tempImg.data[o + 2] = c.b;
@@ -242,8 +257,11 @@ export function initApp() {
       chip.className = 'chip';
       chip.style.background = v.hex;
       td.appendChild(chip);
+      const label = v.wall ? '  壁' : v.outside ? '  場外' : '';
       td.appendChild(
-        document.createTextNode(`${v.hex}  明度 ${v.brightness.toFixed(2)}  ${v.temperature.toFixed(1)} °C`)
+        document.createTextNode(
+          `${v.hex}  明度 ${v.brightness.toFixed(2)}  ${v.temperature.toFixed(1)} °C${label}`
+        )
       );
     } else if (typeof v === 'number') {
       td.textContent = String(Number(v.toFixed(4)));
@@ -549,7 +567,8 @@ export function initApp() {
         : running
           ? '<span class="state-run">実行中</span>'
           : '<span class="state-pause">停止</span>';
-      statusEl.innerHTML = `${state}  t = ${sim.time.toFixed(1)} s  x${speed}`;
+      const touch = !sim.error && sim.collided ? ' <span class="state-touch">⚠ 接触</span>' : '';
+      statusEl.innerHTML = `${state}${touch}  t = ${sim.time.toFixed(1)} s  x${speed}`;
     }
 
     updateMonitor();
