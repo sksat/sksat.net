@@ -342,6 +342,11 @@ button.primary:hover {
   width: 1%;
 }
 
+.monitor .tm-time {
+  color: var(--muted);
+  font-size: 10px;
+}
+
 .monitor .chip {
   display: inline-block;
   width: 11px;

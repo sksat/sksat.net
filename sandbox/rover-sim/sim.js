@@ -316,6 +316,10 @@ export class Simulation {
     this.time = 0;
     this.logs = [];
     this.memory = {};
+    // ファームウェアが明示的に読んだセンサ値の記録 (テレメトリ表示用)
+    this.sensorReadings = {};
+    // ファームウェアが rover.telemetry(name, value) で送った任意の値
+    this.telemetry = {};
     this.error = null;
     this._booted = false;
     this._api = this._makeApi();
@@ -346,7 +350,15 @@ export class Simulation {
         return sim.commands[id];
       },
       sensor(id) {
-        return sim.readSensor(id);
+        const value = sim.readSensor(id);
+        sim.sensorReadings[id] = { time: sim.time, value };
+        return value;
+      },
+      telemetry(name, value) {
+        const key = String(name);
+        // 暴走対策: 上限を超えたら新しいキーを受け付けない (既存キーの更新は可)
+        if (!(key in sim.telemetry) && Object.keys(sim.telemetry).length >= 100) return;
+        sim.telemetry[key] = { time: sim.time, value };
       },
       log(...args) {
         sim._log(args.map(formatLogValue).join(' '));

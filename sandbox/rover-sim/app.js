@@ -82,8 +82,8 @@ export function initApp() {
   let runtimeErrorShown = false;
   let groundTex = null; // { color: canvas, temp: canvas, tMin, tMax }
   let sensorRows = new Map();
+  let telemetryRows = new Map();
   let actuatorRows = new Map();
-  let lastReadings = new Map();
 
   // ---- エディタ ----
   const worldEditor = new CodeEditor($('editor-world'), {
@@ -204,7 +204,7 @@ export function initApp() {
     groundTex = { color: colorCanvas, temp: tempCanvas, tMin, tMax };
   }
 
-  // ---- センサ / アクチュエータモニタ ----
+  // ---- テレメトリ / アクチュエータモニタ ----
   function buildRow(table, id) {
     const tr = document.createElement('tr');
     const tdId = document.createElement('td');
@@ -221,8 +221,8 @@ export function initApp() {
     sensorTable.innerHTML = '';
     actuatorTable.innerHTML = '';
     sensorRows = new Map();
+    telemetryRows = new Map();
     actuatorRows = new Map();
-    lastReadings = new Map();
     if (!sim) return;
     for (const def of sim.world.rover.sensors) {
       sensorRows.set(def.id, buildRow(sensorTable, def.id));
@@ -232,33 +232,48 @@ export function initApp() {
     }
   }
 
+  /** テレメトリ値 (センサ読み取り or 任意の値) をセルに描く */
+  function renderTelemetryCell(td, entry) {
+    const v = entry.value;
+    td.innerHTML = '';
+    if (v && typeof v === 'object' && typeof v.hex === 'string') {
+      // ground センサの読み値
+      const chip = document.createElement('i');
+      chip.className = 'chip';
+      chip.style.background = v.hex;
+      td.appendChild(chip);
+      td.appendChild(
+        document.createTextNode(`${v.hex}  明度 ${v.brightness.toFixed(2)}  ${v.temperature.toFixed(1)} °C`)
+      );
+    } else if (typeof v === 'number') {
+      td.textContent = String(Number(v.toFixed(4)));
+    } else if (typeof v === 'object' && v !== null) {
+      td.textContent = JSON.stringify(v);
+    } else {
+      td.textContent = String(v);
+    }
+    const time = document.createElement('span');
+    time.className = 'tm-time';
+    time.textContent = ` @ ${entry.time.toFixed(1)}s`;
+    td.appendChild(time);
+  }
+
   function updateMonitor() {
     if (!sim) return;
+    // センサ: ファームウェアが明示的に読んだ値だけを表示する
     for (const def of sim.world.rover.sensors) {
       const td = sensorRows.get(def.id);
-      if (!td) continue;
-      let reading;
-      try {
-        reading = sim.readSensor(def.id);
-      } catch {
-        td.textContent = '(読み取りエラー)';
-        continue;
+      const entry = sim.sensorReadings[def.id];
+      if (td && entry) renderTelemetryCell(td, entry);
+    }
+    // 任意のテレメトリ (rover.telemetry で送られた値)。新しいキーは行を追加する
+    for (const [key, entry] of Object.entries(sim.telemetry)) {
+      let td = telemetryRows.get(key);
+      if (!td) {
+        td = buildRow(sensorTable, key);
+        telemetryRows.set(key, td);
       }
-      lastReadings.set(def.id, reading);
-      if (reading && typeof reading === 'object' && reading.hex) {
-        td.innerHTML = '';
-        const chip = document.createElement('i');
-        chip.className = 'chip';
-        chip.style.background = reading.hex;
-        td.appendChild(chip);
-        td.appendChild(
-          document.createTextNode(
-            `${reading.hex}  明度 ${reading.brightness.toFixed(2)}  ${reading.temperature.toFixed(1)} °C`
-          )
-        );
-      } else {
-        td.textContent = JSON.stringify(reading);
-      }
+      renderTelemetryCell(td, entry);
     }
     for (const def of sim.world.rover.actuators) {
       const td = actuatorRows.get(def.id);
@@ -382,9 +397,9 @@ export function initApp() {
     ctx.fillStyle = '#6eb5ff';
     ctx.fill();
 
-    // センサ
+    // センサ (明示的に読まれたものは最後の読み値で塗る)
     for (const def of rover.sensors) {
-      const reading = lastReadings.get(def.id);
+      const reading = sim.sensorReadings[def.id]?.value;
       ctx.beginPath();
       ctx.arc(def.x, def.y, 0.012, 0, Math.PI * 2);
       ctx.fillStyle = reading && reading.hex ? reading.hex : '#b48ead';

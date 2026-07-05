@@ -77,14 +77,16 @@ const BASIC_FIRMWARE = `// ================================================
 // loop(rover, dt) が毎ステップ (1/60 s) 呼ばれる。
 //
 // rover API:
-//   rover.set(id, value)   アクチュエータへ指令 (min/max でクランプ)
-//   rover.get(id)          現在の指令値
-//   rover.actuators        アクチュエータ id 一覧
-//   rover.sensor(id)       センサ値 { hex, color, brightness, temperature }
-//   rover.sensors          センサ id 一覧
-//   rover.time             起動からの経過時間 [s]
-//   rover.memory           自由に使える永続オブジェクト
-//   rover.log(...)         コンソール出力
+//   rover.set(id, value)          アクチュエータへ指令 (min/max でクランプ)
+//   rover.get(id)                 現在の指令値
+//   rover.actuators               アクチュエータ id 一覧
+//   rover.sensor(id)              センサ値 { hex, color, brightness, temperature }
+//                                 読んだ値はテレメトリパネルに表示される
+//   rover.sensors                 センサ id 一覧
+//   rover.telemetry(name, value)  任意の値をテレメトリパネルに表示する
+//   rover.time                    起動からの経過時間 [s]
+//   rover.memory                  自由に使える永続オブジェクト
+//   rover.log(...)                コンソール出力
 
 function setup(rover) {
   rover.log('rover boot');
@@ -97,6 +99,10 @@ function loop(rover, dt) {
   const v = phase === 0 ? 0.3 : -0.3;  // 前進 / 後進
   rover.set('wheel-left', v);
   rover.set('wheel-right', v);
+
+  // センサを読む / 任意の値を送るとテレメトリパネルに出る
+  rover.sensor('ground');
+  rover.telemetry('mode', phase === 0 ? 'forward' : 'backward');
 }
 `;
 
@@ -161,6 +167,10 @@ function setup(rover) {
 }
 
 function loop(rover, dt) {
+  // センサを読む (読んだ値はテレメトリパネルに表示される)
+  const l = rover.sensor('line-left');
+  const r = rover.sensor('line-right');
+
   // とりあえずゆっくり前進するだけ
   rover.set('wheel-left', 0.2);
   rover.set('wheel-right', 0.2);

@@ -371,6 +371,32 @@ describe('Simulation (統合)', () => {
     assert.throws(() => sim.readSensor('nope'));
   });
 
+  it('センサ値はファームウェアが明示的に読んだときだけ記録される', () => {
+    const src = `
+      const map = { width: 2, height: 2, ground() { return '#fff'; } };
+      const rover = { drive() { return {}; }, sensors: [{ id: 'a' }, { id: 'b' }] };
+    `;
+    const sim = makeSim(src, `function loop(rover, dt) { if (rover.time > 0.05) rover.sensor('a'); }`);
+    sim.step(DT);
+    assert.deepEqual(Object.keys(sim.sensorReadings), [], '読むまでは空');
+    for (let i = 0; i < 10; i++) sim.step(DT);
+    assert.truthy(sim.sensorReadings['a'], '読んだセンサは記録される');
+    assert.equal(sim.sensorReadings['a'].value.hex, '#ffffff');
+    assert.true(sim.sensorReadings['a'].time > 0.05, '読んだ時刻が記録される');
+    assert.falsy(sim.sensorReadings['b'], '読んでいないセンサは記録されない');
+  });
+
+  it('rover.telemetry で任意の値をテレメトリに送れる', () => {
+    const sim = makeSim(
+      MINI_WORLD,
+      `function loop(rover, dt) { rover.telemetry('mode', 'forward'); rover.telemetry('count', 42); }`
+    );
+    sim.step(DT);
+    assert.equal(sim.telemetry['mode'].value, 'forward');
+    assert.equal(sim.telemetry['count'].value, 42);
+    assert.equal(typeof sim.telemetry['mode'].time, 'number');
+  });
+
   it('rover.memory は loop をまたいで保持される', () => {
     const sim = makeSim(
       MINI_WORLD,
