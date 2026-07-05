@@ -214,6 +214,11 @@ export const SAMPLES = [
   { id: 'linetrace', name: 'ライントレース', world: LINETRACE_WORLD, firmware: LINETRACE_FIRMWARE },
 ];
 
+/** スクリプトの組がどれかのサンプルと完全一致すればそのサンプルを返す (URL 共有の簡約用) */
+export function findSample(world, firmware) {
+  return SAMPLES.find((s) => s.world === world && s.firmware === firmware) || null;
+}
+
 // デフォルトサンプル (テスト・初期表示用)
 export const SAMPLE_WORLD = BASIC_WORLD;
 export const SAMPLE_FIRMWARE = BASIC_FIRMWARE;
