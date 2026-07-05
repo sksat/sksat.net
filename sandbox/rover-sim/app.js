@@ -432,21 +432,29 @@ export function initApp() {
 
   // ---- シミュレーション制御 ----
 
+  let lastSources = null; // 最後に実行したスクリプト (リセット時の再コンパイル用)
+
+  /** スクリプトをコンパイルしてシミュレーションを最初から作り直す */
+  function buildSim(worldSrc, firmwareSrc) {
+    const world = compileWorld(worldSrc);
+    // ground() を一度呼んで即時エラーを検出する
+    sampleGround(world.map, world.map.width / 2, world.map.height / 2);
+    const firmware = compileFirmware(firmwareSrc);
+    sim = new Simulation(world, firmware);
+    bakeGroundTextures(world.map);
+    trail = [];
+    consumedLogs = 0;
+    runtimeErrorShown = false;
+    rebuildMonitor();
+  }
+
   /** エディタのスクリプトを読み込み、最初から実行する */
   function execScripts({ silent = false } = {}) {
     const worldSrc = worldEditor.getValue();
     const firmwareSrc = firmwareEditor.getValue();
     try {
-      const world = compileWorld(worldSrc);
-      // ground() を一度呼んで即時エラーを検出する
-      sampleGround(world.map, world.map.width / 2, world.map.height / 2);
-      const firmware = compileFirmware(firmwareSrc);
-      sim = new Simulation(world, firmware);
-      bakeGroundTextures(world.map);
-      trail = [];
-      consumedLogs = 0;
-      runtimeErrorShown = false;
-      rebuildMonitor();
+      buildSim(worldSrc, firmwareSrc);
+      lastSources = { world: worldSrc, firmware: firmwareSrc };
       storageSet(STORAGE_WORLD, worldSrc);
       storageSet(STORAGE_FIRMWARE, firmwareSrc);
       setRunning(true);
@@ -458,13 +466,19 @@ export function initApp() {
     }
   }
 
+  /**
+   * 実行中のスクリプトのまま t=0 に戻す。
+   * ハードウェア記述が閉包変数で内部状態 (モータ速度など) を持てるため、
+   * 再コンパイルして完全に初期化する。エディタの未実行の編集は反映しない。
+   */
   function resetSim() {
-    if (!sim) return;
-    sim.reset();
-    trail = [];
-    consumedLogs = 0;
-    runtimeErrorShown = false;
-    pushConsole('リセットしました (t = 0)', 'info');
+    if (!lastSources) return;
+    try {
+      buildSim(lastSources.world, lastSources.firmware);
+      pushConsole('リセットしました (t = 0)', 'info');
+    } catch (e) {
+      pushConsole(`エラー: ${e.message}`, 'error');
+    }
   }
 
   function setRunning(v) {

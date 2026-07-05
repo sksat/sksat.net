@@ -42,6 +42,15 @@ const map = {
 
 // ---- 探査機ハードウェア定義 ----
 // 形状・センサ・アクチュエータ・運動モデルをすべてここで記述する。
+
+// モータ特性: デューティ比 1.0 のときの定常速度と、応答の時定数
+const MOTOR_MAX_SPEED = 0.5;  // [m/s]
+const MOTOR_TAU = 0.15;       // [s]
+
+// 左右タイヤの現在速度 (モータモデルの内部状態)
+let speedLeft = 0;
+let speedRight = 0;
+
 const rover = {
   start: { x: 1.7, y: 1.5, heading: 0 },  // 初期位置・向き
 
@@ -53,20 +62,25 @@ const rover = {
     { shape: 'rect', x: 0, y: -0.075, w: 0.07, h: 0.03, color: '#15181e' },
   ],
 
-  // アクチュエータ: ファームウェアから rover.set(id, value) で指令する
+  // アクチュエータ: 左右の PWM モータ。ファームウェアからは
+  // rover.set(id, duty) でデューティ比 (-1.0〜1.0、負で逆転) を指令する。
   actuators: [
-    { id: 'wheel-left',  min: -0.5, max: 0.5 },   // 左タイヤ速度 [m/s]
-    { id: 'wheel-right', min: -0.5, max: 0.5 },   // 右タイヤ速度 [m/s]
+    { id: 'motor-left',  min: -1, max: 1 },
+    { id: 'motor-right', min: -1, max: 1 },
   ],
 
-  // 運動モデル: アクチュエータ指令 → 機体速度 { vx: 前方, vy: 左, omega: CCW }
+  // 運動モデル: PWM デューティ比 → 機体速度 { vx: 前方, vy: 左, omega: CCW }
+  // モータは一次遅れで目標速度に追従する簡単な DC モータ近似。
   // ここを書き換えれば差動二輪以外 (オムニホイール・スラスタ等) も作れる。
   drive(act, dt) {
+    const a = Math.min(dt / MOTOR_TAU, 1);
+    speedLeft  += (act['motor-left']  * MOTOR_MAX_SPEED - speedLeft)  * a;
+    speedRight += (act['motor-right'] * MOTOR_MAX_SPEED - speedRight) * a;
     const tread = 0.14;  // 左右タイヤ間隔 [m]
     return {
-      vx: (act['wheel-left'] + act['wheel-right']) / 2,
+      vx: (speedLeft + speedRight) / 2,
       vy: 0,
-      omega: (act['wheel-right'] - act['wheel-left']) / tread,
+      omega: (speedRight - speedLeft) / tread,
     };
   },
 
@@ -85,6 +99,7 @@ const BASIC_FIRMWARE = `// ================================================
 //
 // rover API:
 //   rover.set(id, value)          アクチュエータへ指令 (min/max でクランプ)
+//                                 モータは PWM デューティ比 (-1.0〜1.0)
 //   rover.get(id)                 現在の指令値
 //   rover.actuators               アクチュエータ id 一覧
 //   rover.sensor(id)              センサ値 { hex, color, brightness, temperature }
@@ -103,9 +118,9 @@ function setup(rover) {
 // デモ: 2 秒ごとに前進・後進を繰り返す
 function loop(rover, dt) {
   const phase = Math.floor(rover.time / 2.0) % 2;
-  const v = phase === 0 ? 0.3 : -0.3;  // 前進 / 後進
-  rover.set('wheel-left', v);
-  rover.set('wheel-right', v);
+  const duty = phase === 0 ? 0.6 : -0.6;  // PWM デューティ比: 前進 / 後進
+  rover.set('motor-left', duty);
+  rover.set('motor-right', duty);
 
   // センサを読む / 任意の値を送るとテレメトリパネルに出る
   rover.sensor('ground');
@@ -130,6 +145,12 @@ const map = {
   },
 };
 
+// PWM モータ (一次遅れの DC モータ近似)
+const MOTOR_MAX_SPEED = 0.5;  // [m/s]
+const MOTOR_TAU = 0.15;       // [s]
+let speedLeft = 0;
+let speedRight = 0;
+
 const rover = {
   start: { x: 2.0, y: 0.6, heading: 0 },  // ラインの真上からスタート
 
@@ -140,17 +161,21 @@ const rover = {
     { shape: 'rect', x: 0, y: -0.075, w: 0.07, h: 0.03, color: '#15181e' },
   ],
 
+  // 左右の PWM モータ (デューティ比 -1.0〜1.0)
   actuators: [
-    { id: 'wheel-left',  min: -0.5, max: 0.5 },
-    { id: 'wheel-right', min: -0.5, max: 0.5 },
+    { id: 'motor-left',  min: -1, max: 1 },
+    { id: 'motor-right', min: -1, max: 1 },
   ],
 
   drive(act, dt) {
+    const a = Math.min(dt / MOTOR_TAU, 1);
+    speedLeft  += (act['motor-left']  * MOTOR_MAX_SPEED - speedLeft)  * a;
+    speedRight += (act['motor-right'] * MOTOR_MAX_SPEED - speedRight) * a;
     const tread = 0.14;
     return {
-      vx: (act['wheel-left'] + act['wheel-right']) / 2,
+      vx: (speedLeft + speedRight) / 2,
       vy: 0,
-      omega: (act['wheel-right'] - act['wheel-left']) / tread,
+      omega: (speedRight - speedLeft) / tread,
     };
   },
 
@@ -178,9 +203,9 @@ function loop(rover, dt) {
   const l = rover.sensor('line-left');
   const r = rover.sensor('line-right');
 
-  // とりあえずゆっくり前進するだけ
-  rover.set('wheel-left', 0.2);
-  rover.set('wheel-right', 0.2);
+  // とりあえずゆっくり前進するだけ (PWM デューティ比 0.4)
+  rover.set('motor-left', 0.4);
+  rover.set('motor-right', 0.4);
 }
 `;
 

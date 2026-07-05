@@ -571,9 +571,39 @@ describe('サンプルデモ (前進・後進の繰り返し)', () => {
     assert.equal(typeof world.map.ground, 'function');
     assert.equal(typeof fw.loop, 'function');
     assert.true(world.rover.sensors.length >= 1, 'センサが載っている');
-    assert.equal(world.rover.actuators.length, 2, '左右タイヤの 2 アクチュエータ');
+    assert.equal(world.rover.actuators.length, 2, '左右モータの 2 アクチュエータ');
     assert.equal(typeof world.rover.drive, 'function', '運動モデルもスクリプト側で定義');
     assert.equal(typeof world.map.wall, 'function', '壁の設置例が入っている');
+  });
+
+  it('モータは PWM デューティ比 (-1〜1) で指令する', () => {
+    const world = compileWorld(SAMPLE_WORLD);
+    const ids = world.rover.actuators.map((a) => a.id);
+    assert.deepEqual(ids, ['motor-left', 'motor-right']);
+    for (const a of world.rover.actuators) {
+      assert.equal(a.min, -1, `${a.id} の min はデューティ比 -1`);
+      assert.equal(a.max, 1, `${a.id} の max はデューティ比 +1`);
+    }
+    // 範囲外の指令はクランプされる
+    const sim = new Simulation(
+      world,
+      compileFirmware(`function loop(rover, dt) { rover.set('motor-left', 5); rover.set('motor-right', -5); }`)
+    );
+    sim.step(DT);
+    assert.equal(sim.commands['motor-left'], 1);
+    assert.equal(sim.commands['motor-right'], -1);
+  });
+
+  it('モータは一次遅れで応答する (即座に定常速度にならない)', () => {
+    const sim = new Simulation(
+      compileWorld(SAMPLE_WORLD),
+      compileFirmware(`function loop(rover, dt) { rover.set('motor-left', 1); rover.set('motor-right', 1); }`)
+    );
+    sim.step(DT);
+    assert.true(sim.twist.vx > 0, '動き始める');
+    assert.true(sim.twist.vx < 0.15, `1 ステップ目は定常速度に達しない (vx = ${sim.twist.vx})`);
+    for (let i = 0; i < 120; i++) sim.step(DT); // 2 s
+    assert.true(sim.twist.vx > 0.45, `十分時間が経てば定常速度に近づく (vx = ${sim.twist.vx})`);
   });
 
   it('サンプルの壁は前進・後進デモの経路上にはない', () => {
@@ -591,11 +621,13 @@ describe('サンプルデモ (前進・後進の繰り返し)', () => {
     assert.true(sim.pose.x > x0 + 0.3, `前進している (x: ${x0} → ${sim.pose.x})`);
   });
 
-  it('次の 2 秒は後進してほぼ元の位置に戻る', () => {
+  it('前進・後進を繰り返して往復する (定常サイクルで元の位置に戻る)', () => {
     const sim = new Simulation(compileWorld(SAMPLE_WORLD), compileFirmware(SAMPLE_FIRMWARE));
-    const x0 = sim.pose.x;
-    for (let i = 0; i < 240; i++) sim.step(DT); // 4 s
-    assert.approximately(sim.pose.x, x0, 0.02, '前進・後進で往復する');
+    // モータの一次遅れがあるため、起動直後の過渡を除いた 1 周期 (t=2..6) で比較する
+    for (let i = 0; i < 120; i++) sim.step(DT); // t = 2 s
+    const x2 = sim.pose.x;
+    for (let i = 0; i < 240; i++) sim.step(DT); // t = 6 s (後進 2 s + 前進 2 s)
+    assert.approximately(sim.pose.x, x2, 0.02, '1 周期で往復する');
     assert.equal(sim.error, null);
   });
 
@@ -640,12 +672,13 @@ describe('ライントレースサンプル', () => {
   it('ライントレース制御を書けば周回できる (環境の回帰テスト)', () => {
     const sample = SAMPLES.find((s) => s.id === 'linetrace');
     // サンプルには制御を入れない方針のため、追従制御はテスト側で記述する
+    // (PWM デューティ比での P 制御)
     const fw = `
       function loop(rover, dt) {
         const l = rover.sensor('line-left').brightness;
         const r = rover.sensor('line-right').brightness;
-        rover.set('wheel-left', 0.22 + 0.3 * (l - r));
-        rover.set('wheel-right', 0.22 + 0.3 * (r - l));
+        rover.set('motor-left', 0.44 + 0.6 * (l - r));
+        rover.set('motor-right', 0.44 + 0.6 * (r - l));
       }
     `;
     const sim = new Simulation(compileWorld(sample.world), compileFirmware(fw));
