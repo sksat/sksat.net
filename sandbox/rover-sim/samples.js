@@ -27,7 +27,7 @@ const map = {
     const temperature = 20 + 30 * Math.exp(-(dh * dh) / (2 * 0.35 * 0.35));
 
     return {
-      color: onCross ? '#57504a' : '#d8cfa8',
+      color: onCross ? '#b5a97e' : '#d8cfa8',
       temperature: temperature,
     };
   },
