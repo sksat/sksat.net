@@ -7,6 +7,12 @@
       "requirements": {
         "webgpu": true
       }
+    },
+    {
+      "path": "rover-sim/",
+      "name": "Rover Simulator",
+      "description": "マップ・探査機・ファームウェアを JavaScript で記述できる差動二輪探査機シミュレータ",
+      "requirements": {}
     }
   ]
 }

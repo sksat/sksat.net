@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>rover-sim tests - sksat.net/sandbox</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      font-size: 14px;
+      background: #0e1116;
+      color: #dfe3ea;
+      margin: 0;
+      padding: 20px;
+    }
+
+    a { color: #6eb5ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header h1 { font-size: 20px; }
+    header h1 a { color: #dfe3ea; }
+
+    .test-summary,
+    .test-suite {
+      margin-bottom: 20px;
+      padding: 16px 20px;
+      background: #161b22;
+      border: 1px solid #262c36;
+      border-radius: 8px;
+    }
+
+    .test-summary .passed { color: #4caf50; margin: 4px 0; }
+    .test-summary .failed { color: #f44336; margin: 4px 0; }
+    .test-suite h3 { margin: 0 0 12px 0; color: #6eb5ff; }
+    .test-suite ul { list-style: none; padding: 0; margin: 0; }
+    .test-suite li { padding: 6px 0; border-bottom: 1px solid #262c36; }
+    .test-suite li:last-child { border-bottom: none; }
+    .test-passed .test-icon { color: #4caf50; margin-right: 8px; }
+    .test-failed .test-icon { color: #f44336; margin-right: 8px; }
+
+    .test-error {
+      margin: 8px 0 0 22px;
+      padding: 8px 10px;
+      background: #1e1414;
+      border-radius: 4px;
+      color: #f44336;
+      font-size: 12px;
+      overflow-x: auto;
+    }
+
+    .error { color: #f44336; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1><a href="/">sksat.net</a> / <a href="/sandbox/">sandbox</a> / <a href="../">rover-sim</a> / tests</h1>
+  </header>
+
+  <main>
+    <div id="results">
+      <p class="loading">Running tests...</p>
+    </div>
+  </main>
+
+  <script type="module">
+    import { renderResults } from './test-runner.js';
+    import { runner as simRunner } from './sim.test.js';
+    import { runner as highlightRunner } from './highlight.test.js';
+
+    async function runAllTests() {
+      const resultsDiv = document.getElementById('results');
+      try {
+        const simResults = await simRunner.run();
+        const hlResults = await highlightRunner.run();
+        renderResults({
+          passed: simResults.passed + hlResults.passed,
+          failed: simResults.failed + hlResults.failed,
+          suites: [...simResults.suites, ...hlResults.suites],
+        }, resultsDiv);
+      } catch (error) {
+        resultsDiv.innerHTML = `<p class="error">Test runner error: ${error.message}</p>`;
+        console.error(error);
+      }
+    }
+
+    runAllTests();
+  </script>
+</body>
+
+</html>
