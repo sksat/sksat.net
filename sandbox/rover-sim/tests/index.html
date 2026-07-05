@@ -68,16 +68,18 @@
     import { renderResults } from './test-runner.js';
     import { runner as simRunner } from './sim.test.js';
     import { runner as highlightRunner } from './highlight.test.js';
+    import { runner as shareRunner } from './share.test.js';
 
     async function runAllTests() {
       const resultsDiv = document.getElementById('results');
       try {
         const simResults = await simRunner.run();
         const hlResults = await highlightRunner.run();
+        const shareResults = await shareRunner.run();
         renderResults({
-          passed: simResults.passed + hlResults.passed,
-          failed: simResults.failed + hlResults.failed,
-          suites: [...simResults.suites, ...hlResults.suites],
+          passed: simResults.passed + hlResults.passed + shareResults.passed,
+          failed: simResults.failed + hlResults.failed + shareResults.failed,
+          suites: [...simResults.suites, ...hlResults.suites, ...shareResults.suites],
         }, resultsDiv);
       } catch (error) {
         resultsDiv.innerHTML = `<p class="error">Test runner error: ${error.message}</p>`;
