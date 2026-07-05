@@ -12,7 +12,17 @@
 
 import { compileWorld, compileFirmware, Simulation, sampleGround, toHex } from './sim.js';
 import { CodeEditor } from './highlight.js';
-import { SAMPLES } from './samples.js';
+import { SAMPLES, findSample } from './samples.js';
+import {
+  encodeText,
+  decodeText,
+  buildShareUrl,
+  PARAM_WORLD,
+  PARAM_FIRMWARE,
+  PARAM_SAMPLE,
+  PARAM_SPEED,
+  PARAM_VIEW,
+} from './share.js';
 
 const STORAGE_WORLD = 'rover-sim.world';
 const STORAGE_FIRMWARE = 'rover-sim.firmware';
@@ -66,6 +76,7 @@ export function initApp() {
   const btnFull = $('btn-full');
   const btnExec = $('btn-exec');
   const selSample = $('sel-sample');
+  const btnShare = $('btn-share');
   const selSpeed = $('sel-speed');
   const selView = $('sel-view');
   const splitter = $('splitter');
@@ -432,8 +443,11 @@ export function initApp() {
 
   // ---- シミュレーション制御 ----
 
-  /** エディタのスクリプトを読み込み、最初から実行する */
-  function execScripts({ silent = false } = {}) {
+  /**
+   * エディタのスクリプトを読み込み、最初から実行する。
+   * save: false のとき localStorage を上書きしない (共有 URL からの読み込み用)。
+   */
+  function execScripts({ silent = false, save = true } = {}) {
     const worldSrc = worldEditor.getValue();
     const firmwareSrc = firmwareEditor.getValue();
     try {
@@ -447,8 +461,15 @@ export function initApp() {
       consumedLogs = 0;
       runtimeErrorShown = false;
       rebuildMonitor();
-      storageSet(STORAGE_WORLD, worldSrc);
-      storageSet(STORAGE_FIRMWARE, firmwareSrc);
+      if (save) {
+        storageSet(STORAGE_WORLD, worldSrc);
+        storageSet(STORAGE_FIRMWARE, firmwareSrc);
+        // 内容が変わったので古い共有パラメータを URL から外す
+        const sp = new URLSearchParams(location.search);
+        if (sp.has(PARAM_WORLD) || sp.has(PARAM_FIRMWARE) || sp.has(PARAM_SAMPLE)) {
+          history.replaceState(null, '', location.pathname);
+        }
+      }
       setRunning(true);
       if (!silent) pushConsole('スクリプトを読み込み、実行を開始しました', 'ok');
       return true;
@@ -456,6 +477,88 @@ export function initApp() {
       pushConsole(`エラー: ${e.message}`, 'error');
       return false;
     }
+  }
+
+  /**
+   * 現在のエディタ内容と設定を載せた共有 URL を作り、コピーする。
+   * 単純な設定は素のクエリ、コードは world / firmware に個別の base64url。
+   * 未編集のサンプルそのままなら sample=<id> だけを載せる。
+   */
+  async function shareCurrent() {
+    try {
+      const worldSrc = worldEditor.getValue();
+      const firmwareSrc = firmwareEditor.getValue();
+      const settings = { [PARAM_SPEED]: speed, [PARAM_VIEW]: viewMode };
+
+      const sample = findSample(worldSrc, firmwareSrc);
+      const params = sample
+        ? { [PARAM_SAMPLE]: sample.id, ...settings }
+        : {
+            ...settings,
+            [PARAM_WORLD]: await encodeText(worldSrc),
+            [PARAM_FIRMWARE]: await encodeText(firmwareSrc),
+          };
+
+      const url = buildShareUrl(location.href, params);
+      history.replaceState(null, '', url);
+      if (url.length > 8000) {
+        pushConsole(`注意: 共有 URL が長め (${url.length} 文字) です。一部のサービスでは切れる可能性があります`, 'info');
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        pushConsole(`共有 URL をコピーしました (${url.length} 文字)`, 'ok');
+      } catch {
+        pushConsole('共有 URL をアドレスバーに反映しました (コピーは手動でどうぞ)', 'info');
+      }
+    } catch (e) {
+      pushConsole(`共有 URL の生成に失敗しました: ${e.message}`, 'error');
+    }
+  }
+
+  /** 起動時: 共有 URL があればスクリプトと設定を復元して実行する */
+  async function initFromUrl() {
+    const sp = new URLSearchParams(location.search);
+
+    // 単純な設定はコードの有無に関わらず反映する
+    if ([1, 2, 4, 8].includes(+sp.get(PARAM_SPEED))) {
+      speed = +sp.get(PARAM_SPEED);
+      selSpeed.value = String(speed);
+    }
+    const view = sp.get(PARAM_VIEW);
+    if (view === 'temp' || view === 'color') {
+      viewMode = view;
+      selView.value = view;
+    }
+
+    try {
+      if (sp.has(PARAM_WORLD) || sp.has(PARAM_FIRMWARE)) {
+        if (sp.has(PARAM_WORLD)) worldEditor.setValue(await decodeText(sp.get(PARAM_WORLD)));
+        if (sp.has(PARAM_FIRMWARE)) firmwareEditor.setValue(await decodeText(sp.get(PARAM_FIRMWARE)));
+        const ok = execScripts({ silent: true, save: false });
+        pushConsole(
+          ok ? '共有 URL からスクリプトを読み込みました' : '共有 URL のスクリプトにエラーがあります',
+          ok ? 'ok' : 'error'
+        );
+        return true;
+      }
+
+      const sampleId = sp.get(PARAM_SAMPLE);
+      if (sampleId) {
+        const sample = SAMPLES.find((s) => s.id === sampleId);
+        if (!sample) {
+          pushConsole(`共有 URL のサンプルが見つかりません: ${sampleId}`, 'error');
+          return false;
+        }
+        worldEditor.setValue(sample.world);
+        firmwareEditor.setValue(sample.firmware);
+        execScripts({ silent: true, save: false });
+        pushConsole(`共有 URL からサンプル「${sample.name}」を読み込みました`, 'ok');
+        return true;
+      }
+    } catch (e) {
+      pushConsole(`共有 URL の読み込みに失敗しました: ${e.message}`, 'error');
+    }
+    return false;
   }
 
   function resetSim() {
@@ -476,6 +579,7 @@ export function initApp() {
   btnPause.addEventListener('click', () => setRunning(!running));
   btnReset.addEventListener('click', resetSim);
   btnExec.addEventListener('click', () => execScripts());
+  btnShare.addEventListener('click', () => shareCurrent());
   selSample.addEventListener('change', () => {
     const sample = SAMPLES.find((s) => s.id === selSample.value);
     selSample.value = ''; // プレースホルダに戻す
@@ -483,7 +587,10 @@ export function initApp() {
     worldEditor.setValue(sample.world);
     firmwareEditor.setValue(sample.firmware);
     pushConsole(`サンプル「${sample.name}」を読み込みました`, 'info');
-    execScripts({ silent: true });
+    if (execScripts({ silent: true })) {
+      // サンプルを選んだだけの状態は sample= だけの URL にしておく
+      history.replaceState(null, '', buildShareUrl(location.href, { [PARAM_SAMPLE]: sample.id }));
+    }
   });
   selSpeed.addEventListener('change', () => {
     speed = Number(selSpeed.value);
@@ -577,13 +684,18 @@ export function initApp() {
   }
 
   // ---- 起動 ----
-  if (!execScripts({ silent: true })) {
-    // 保存されたスクリプトが壊れている場合はサンプルへフォールバック
-    worldEditor.setValue(SAMPLES[0].world);
-    firmwareEditor.setValue(SAMPLES[0].firmware);
-    execScripts({ silent: true });
-  }
-  pushConsole('▶ 実行 (Ctrl+Enter) でスクリプトを読み込んで実行 / Space で一時停止・再開', 'info');
-  selectTab('firmware');
-  requestAnimationFrame(frame);
+  (async () => {
+    // 優先順: 共有 URL > localStorage > サンプル
+    if (!(await initFromUrl())) {
+      if (!execScripts({ silent: true, save: false })) {
+        // 保存されたスクリプトが壊れている場合はサンプルへフォールバック
+        worldEditor.setValue(SAMPLES[0].world);
+        firmwareEditor.setValue(SAMPLES[0].firmware);
+        execScripts({ silent: true, save: false });
+      }
+    }
+    pushConsole('▶ 実行 (Ctrl+Enter) でスクリプトを読み込んで実行 / Space で一時停止・再開 / 🔗 共有 で URL 共有', 'info');
+    selectTab('firmware');
+    requestAnimationFrame(frame);
+  })();
 }
